@@ -12,8 +12,8 @@ import java.util.List;
 @Repository
 public interface CardRepo extends JpaRepository<Card, Integer> {
     @Query(value = "SELECT * FROM Card WHERE " +
-            "bit_count(image_hash # CAST(:cardHash AS bigint)) <= :threshold " +
-            "ORDER BY bit_count(image_hash # CAST(:cardHash AS bigint)) ASC " +
+            "bit_count(image_hash # :cardHash::bit(64)) <= :threshold " +
+            "ORDER BY bit_count(image_hash # :cardHash::bit(64)) ASC " +
             "LIMIT 1", nativeQuery = true)
-    Card identifyCard(@Param("cardHash") BigInteger cardHash, @Param("threshold") int threshold);
+    Card identifyCard(@Param("cardHash") String cardHash, @Param("threshold") int threshold);
 }

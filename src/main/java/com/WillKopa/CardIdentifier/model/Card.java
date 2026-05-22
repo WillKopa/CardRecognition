@@ -1,25 +1,29 @@
 package com.WillKopa.CardIdentifier.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import lombok.Getter;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.math.BigInteger;
 import java.util.Date;
 
 @NoArgsConstructor
-@Getter
-@Setter
+@AllArgsConstructor
+@Data
 @Entity
 public class Card {
     @Id
-    private int id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
     private String game;
     private String name;
     private String cardSet;
-    private BigInteger imageHash;
+
+    @Column(name = "image_hash", columnDefinition = "BIT(64)")
+    private String imageHash;
+
+    @Column(name = "last_sold_price", columnDefinition = "BIGINT")
     private BigInteger lastSoldPrice;
     private Date lastUpdate;
 }
