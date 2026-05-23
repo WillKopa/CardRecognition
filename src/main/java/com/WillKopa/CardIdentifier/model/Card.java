@@ -1,5 +1,6 @@
 package com.WillKopa.CardIdentifier.model;
 
+import com.WillKopa.CardIdentifier.converter.VectorConverter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,8 +21,9 @@ public class Card {
     private String name;
     private String cardSet;
 
-    @Column(name = "image_hash", columnDefinition = "BIT(64)")
-    private String imageHash;
+    @Convert(converter = VectorConverter.class)
+    @Column(name = "image_embedding", columnDefinition = "vector(1000)")
+    private float[] imageEmbedding;
 
     @Column(name = "last_sold_price", columnDefinition = "BIGINT")
     private BigInteger lastSoldPrice;

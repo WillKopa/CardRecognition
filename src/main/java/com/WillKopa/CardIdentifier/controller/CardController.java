@@ -1,5 +1,6 @@
 package com.WillKopa.CardIdentifier.controller;
 
+import ai.onnxruntime.OrtException;
 import com.WillKopa.CardIdentifier.model.Card;
 import com.WillKopa.CardIdentifier.service.CardService;
 import lombok.AllArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Date;
 
 @AllArgsConstructor
 @RestController
@@ -28,16 +30,20 @@ public class CardController {
     }
 
     @PostMapping("/load")
-    public ResponseEntity<Card> loadCard(@RequestParam String game, @RequestParam String name, @RequestParam String cardSet, @RequestParam BigInteger lastSoldPrice, @RequestParam MultipartFile imageFile) {
+    public ResponseEntity<?> loadCard(@RequestParam String game, @RequestParam String name, @RequestParam String cardSet, @RequestParam BigInteger lastSoldPrice, @RequestParam MultipartFile imageFile) {
         Card card = new Card();
         card.setGame(game);
         card.setLastSoldPrice(lastSoldPrice);
         card.setCardSet(cardSet);
         card.setName(name);
+        card.setLastUpdate(new Date());
         try {
-            return new ResponseEntity<>(cardService.loadCard(card, imageFile), HttpStatus.OK);
+            cardService.loadCard(card, imageFile);
+            return new ResponseEntity<>("Card loaded", HttpStatus.OK);
         } catch (IOException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (OrtException e) {
+            return new ResponseEntity<>("Error creating embeddings", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

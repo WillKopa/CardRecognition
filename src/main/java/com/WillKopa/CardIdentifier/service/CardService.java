@@ -1,67 +1,51 @@
 package com.WillKopa.CardIdentifier.service;
 
+import ai.onnxruntime.OrtException;
+import com.WillKopa.CardIdentifier.converter.VectorConverter;
 import com.WillKopa.CardIdentifier.model.Card;
 import com.WillKopa.CardIdentifier.repo.CardRepo;
 import lombok.AllArgsConstructor;
-import org.bytedeco.opencv.global.opencv_img_hash;
-import org.bytedeco.opencv.opencv_core.Mat;
-import org.bytedeco.opencv.global.opencv_imgcodecs;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.math.BigInteger;
-import java.util.Date;
 
 @Service
 @AllArgsConstructor
 public class CardService {
+    // 40.5f seems to work. Only tested on 3 cards so far.
+    private static final float matchThreshold = 40.5f;
+    private final EmbeddingService embeddingService;
     private CardRepo cardRepo;
 
     public Card identifyCard(MultipartFile imageFile) throws Exception {
-        String cardHash = imageToHash(imageFile);
-        int maxBitDifferenceThreshold = 10;
-        Card card = cardRepo.identifyCard(cardHash, maxBitDifferenceThreshold);
+        String vectorString = toVectorString(imageFile);
+        Card match = cardRepo.identifyCard(vectorString, matchThreshold);
 
-        if (card == null) {
-            throw new Exception("Card not found");
+        if (match == null) {
+            throw new RuntimeException("No match found");
         }
-
-        return card;
+        match.setImageEmbedding(new float[0]);
+        return match;
     }
 
-    public Card loadCard(Card card, MultipartFile imageFile) throws IOException {
-        String cardHash = imageToHash(imageFile);
-        card.setImageHash(cardHash);
-        card.setLastUpdate(new Date());
-        return cardRepo.save(card);
+    public void loadCard(Card card, MultipartFile imageFile) throws IOException, OrtException {
+        cardRepo.saveWithEmbedding(card.getGame(),
+                card.getName(),
+                card.getCardSet(),
+                toVectorString(imageFile),
+                card.getLastSoldPrice(),
+                card.getLastUpdate());
     }
 
-    private BigInteger matToBigInteger(Mat hashMat) {
-        byte[] hashBytes = new byte[8];
-        hashMat.data().get(hashBytes);
-        return new BigInteger(1, hashBytes);
+    private String toVectorString(MultipartFile imageFile) throws IOException, OrtException {
+        return VectorConverter.embeddingToString(imageToEmbeddings(imageFile));
     }
-
-    private String imageToHash(MultipartFile imageFile) throws IOException {
-        byte[] bytes = imageFile.getBytes();
-        Mat image = opencv_imgcodecs.imdecode(new Mat(bytes), opencv_imgcodecs.IMREAD_COLOR);
-
-        if (image.empty()) {
-            throw new IllegalArgumentException("JavaCV could not decode the uploaded image.");
-        }
-
-        Mat hashMat = new Mat();
-
-        opencv_img_hash.pHash(image, hashMat);
-
-        BigInteger cardHash = matToBigInteger(hashMat);
-        image.release();
-        hashMat.release();
-
-        // Convert into string with base 2 format
-        String hashString = cardHash.toString(2);
-        // Ensures string is 64 bits and replaces empty space with 0's.
-        return String.format("%64s", hashString).replace(' ', '0');
+    private float[] imageToEmbeddings(MultipartFile imageFile) throws IOException, OrtException {
+        BufferedImage image = ImageIO.read(imageFile.getInputStream());
+        System.out.println("Buffered Image done.");
+        return embeddingService.embed(image);
     }
 }
