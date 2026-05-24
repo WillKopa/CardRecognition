@@ -17,6 +17,7 @@ public class Card {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    private String externalDbId;
     private String game;
     private String name;
     private String cardSet;
