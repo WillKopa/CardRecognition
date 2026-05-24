@@ -1,6 +1,8 @@
 package com.WillKopa.CardIdentifier.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -46,6 +48,8 @@ public class PokemonTCGResponse {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class TcgPlayerMarket {
         private String url;
+
+        @JsonFormat(pattern = "yyyy/MM/dd")
         private Date updatedAt;
         private TcgPlayerMarketPriceTypes prices;
     }

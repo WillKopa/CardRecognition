@@ -5,8 +5,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 import java.util.Date;
 
@@ -28,8 +26,7 @@ public class Card {
     @Column(name = "image_embedding", columnDefinition = "vector(1000)")
     private float[] imageEmbedding;
 
-    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
-    private TcgPlayerMarketPriceTypes priceTypes;
+    private String priceTypes;
     private Date lastUpdate;
 }

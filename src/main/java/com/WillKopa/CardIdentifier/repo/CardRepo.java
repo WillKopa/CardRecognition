@@ -24,16 +24,18 @@ public interface CardRepo extends JpaRepository<Card, Integer> {
     @Modifying
     @Transactional
     @Query(value = """
-    INSERT INTO card (game, name, card_set, image_embedding, last_sold_price, last_update)
-    VALUES (:game, :name, :cardSet, CAST(:embedding AS vector), :lastSoldPrice, :lastUpdate)
+    INSERT INTO card ("external_db_id", game, name, card_set, card_set_id, image_embedding, price_types, last_update)
+    VALUES (:externalDbId, :game, :name, :cardSet, :cardSetId, CAST(:embedding AS vector), CAST(:priceTypes AS jsonb), :lastUpdate)
     """, nativeQuery = true)
 
     void saveWithEmbedding(
+            @Param("externalDbId") String externalDbId,
             @Param("game") String game,
             @Param("name") String name,
             @Param("cardSet") String cardSet,
+            @Param("cardSetId") String cardSetId,
             @Param("embedding") String embedding,
-            @Param("lastSoldPrice") BigInteger lastSoldPrice,
+            @Param("priceTypes") String priceTypes,
             @Param("lastUpdate") Date lastUpdate
     );
 }
