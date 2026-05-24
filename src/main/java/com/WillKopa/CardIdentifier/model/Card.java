@@ -5,8 +5,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
-import java.math.BigInteger;
 import java.util.Date;
 
 @NoArgsConstructor
@@ -21,12 +22,14 @@ public class Card {
     private String game;
     private String name;
     private String cardSet;
+    private String cardSetId;
 
     @Convert(converter = VectorConverter.class)
     @Column(name = "image_embedding", columnDefinition = "vector(1000)")
     private float[] imageEmbedding;
 
-    @Column(name = "last_sold_price", columnDefinition = "BIGINT")
-    private BigInteger lastSoldPrice;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private TcgPlayerMarketPriceTypes priceTypes;
     private Date lastUpdate;
 }

@@ -4,13 +4,17 @@ import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtException;
 import ai.onnxruntime.OrtSession;
-import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class EmbeddingService {
     private final OrtEnvironment env;
@@ -24,14 +28,17 @@ public class EmbeddingService {
         session = env.createSession(modelPath, new OrtSession.SessionOptions());
     }
 
-    public float[] embed(BufferedImage image) throws OrtException {
-        System.out.println("Beginning embed");
+
+    public float[] imageToEmbeddings(MultipartFile imageFile) throws IOException, OrtException {
+        BufferedImage image = ImageIO.read(imageFile.getInputStream());
+        return bufferedImageToEmbeddings(image);
+    }
+
+    public float[] bufferedImageToEmbeddings(BufferedImage image) throws OrtException {
         float[][][][] input = preprocess(image);
         OnnxTensor tensor = OnnxTensor.createTensor(env, input);
-        System.out.println("Begin OnnxTensor");
         try (OrtSession.Result result = session.run(Map.of("data", tensor))) {
             float[][] output = (float[][]) result.get(0).getValue();
-            System.out.println("In onnxTensor");
             return output[0];
         }
     }

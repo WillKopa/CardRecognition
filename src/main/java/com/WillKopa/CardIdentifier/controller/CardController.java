@@ -28,22 +28,4 @@ public class CardController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
-
-    @PostMapping("/load")
-    public ResponseEntity<?> loadCard(@RequestParam String game, @RequestParam String name, @RequestParam String cardSet, @RequestParam BigInteger lastSoldPrice, @RequestParam MultipartFile imageFile) {
-        Card card = new Card();
-        card.setGame(game);
-        card.setLastSoldPrice(lastSoldPrice);
-        card.setCardSet(cardSet);
-        card.setName(name);
-        card.setLastUpdate(new Date());
-        try {
-            cardService.loadCard(card, imageFile);
-            return new ResponseEntity<>("Card loaded", HttpStatus.OK);
-        } catch (IOException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } catch (OrtException e) {
-            return new ResponseEntity<>("Error creating embeddings", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
 }

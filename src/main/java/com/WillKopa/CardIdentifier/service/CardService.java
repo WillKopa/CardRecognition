@@ -8,8 +8,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 @Service
@@ -31,21 +29,7 @@ public class CardService {
         return match;
     }
 
-    public void loadCard(Card card, MultipartFile imageFile) throws IOException, OrtException {
-        cardRepo.saveWithEmbedding(card.getGame(),
-                card.getName(),
-                card.getCardSet(),
-                toVectorString(imageFile),
-                card.getLastSoldPrice(),
-                card.getLastUpdate());
-    }
-
     private String toVectorString(MultipartFile imageFile) throws IOException, OrtException {
-        return VectorConverter.embeddingToString(imageToEmbeddings(imageFile));
-    }
-    private float[] imageToEmbeddings(MultipartFile imageFile) throws IOException, OrtException {
-        BufferedImage image = ImageIO.read(imageFile.getInputStream());
-        System.out.println("Buffered Image done.");
-        return embeddingService.embed(image);
+        return VectorConverter.embeddingToString(embeddingService.imageToEmbeddings(imageFile));
     }
 }
