@@ -10,8 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import tools.jackson.databind.ObjectMapper;
@@ -30,20 +28,20 @@ import java.util.concurrent.TimeUnit;
 public class CardLoaderService {
     private static final String POKEMON_API_URL = "https://api.pokemontcg.io/v2/cards?page=%d&pageSize=%d";
     private static final String POKEMON = "Pokemon tcg";
-    @Value("${pokemon.api.key}")
+    @Value("${pokemon.api.key:}")
     private String apiKey;
     private static final int PAGE_SIZE = 250;
     private static final int TIMEOUT = 3;
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private final RestTemplate restTemplate;
     private final EmbeddingService embeddingService;
-    private CardRepo cardRepo;
+    private final CardRepo cardRepo;
 
     public void loadPokemon(int startPage) {
         String url = String.format(POKEMON_API_URL, startPage, PAGE_SIZE);
         PokemonTCGResponse response = getCards(url);
         while(!response.getData().isEmpty()) {
-            log.info("Loading Pokemon from url: {}", url);
+            log.info("Loading Pokemon from url: {} \nPager number: {}", url, startPage);
             // Parse data from response and save it to a new Card object.
             for (PokemonTCGResponse.CardData cardData : response.getData()) {
                 log.info("Loading new Pokemon: {}: {}", cardData.getId(), cardData.getName());
@@ -121,10 +119,11 @@ public class CardLoaderService {
     }
 
     private PokemonTCGResponse getCards(String url) {
-        ResponseEntity<PokemonTCGResponse> response = restTemplate.exchange(url,
-                HttpMethod.GET,
-                getRequestEntity(),
-                PokemonTCGResponse.class);
-        return response.getBody();
+        return restTemplate.getForObject(url, PokemonTCGResponse.class);
+//        ResponseEntity<PokemonTCGResponse> response = restTemplate.exchange(url,
+//                HttpMethod.GET,
+//                getRequestEntity(),
+//                PokemonTCGResponse.class);
+//        return response.getBody();
     }
 }
