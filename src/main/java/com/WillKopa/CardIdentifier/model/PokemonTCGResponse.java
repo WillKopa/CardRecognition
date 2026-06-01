@@ -2,7 +2,6 @@ package com.WillKopa.CardIdentifier.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -23,6 +22,7 @@ public class PokemonTCGResponse {
         private String id;
         private String name;
         private CardSet set;
+        private int number;
         private CardImage images;
         private TcgPlayerMarket tcgplayer; // NA Market prices
     }
@@ -34,6 +34,7 @@ public class PokemonTCGResponse {
         private String id;
         private String name;
         private String series;
+        private int printedTotal;
     }
 
     @lombok.Data

@@ -21,6 +21,9 @@ public class Card {
     private String name;
     private String cardSet;
     private String cardSetId;
+    private int cardNumber;
+    private int setPrintedTotal;
+    private String cardSetConcat;
 
     @Convert(converter = VectorConverter.class)
     @Column(name = "image_embedding", columnDefinition = "vector(1000)")

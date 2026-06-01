@@ -51,6 +51,9 @@ public class CardLoaderService {
                 card.setName(cardData.getName());
                 card.setCardSet(cardData.getSet().getName());
                 card.setCardSetId(cardData.getSet().getId());
+                card.setCardNumber(cardData.getNumber());
+                card.setSetPrintedTotal(cardData.getSet().getPrintedTotal());
+                card.setCardSetConcat(card.getCardNumber() + "/" + card.getSetPrintedTotal());
 
                 BufferedImage image = getImageFromURL(cardData.getImages().getLarge());
 
@@ -80,6 +83,9 @@ public class CardLoaderService {
                         card.getName(),
                         card.getCardSet(),
                         card.getCardSetId(),
+                        card.getCardNumber(),
+                        card.getSetPrintedTotal(),
+                        card.getCardSetConcat(),
                         VectorConverter.embeddingToString(card.getImageEmbedding()),
                         card.getPriceTypes(),
                         card.getLastUpdate()

@@ -23,3 +23,5 @@ from the properties.
 
 
 If cards are not being matched. Change the threshold in `CardService`. The higher the threshold the looser the matching.
+
+Pokemon cards are about 2.5 inches wide and 3.5 inches long
