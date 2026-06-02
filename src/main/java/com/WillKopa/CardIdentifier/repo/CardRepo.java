@@ -1,6 +1,7 @@
 package com.WillKopa.CardIdentifier.repo;
 
 import com.WillKopa.CardIdentifier.model.Card;
+import com.WillKopa.CardIdentifier.model.CardSearchResult;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -41,4 +42,11 @@ public interface CardRepo extends JpaRepository<Card, Integer> {
             @Param("priceTypes") String priceTypes,
             @Param("lastUpdate") Date lastUpdate
     );
+
+    @Query(value = """
+        SELECT name, card_set, card_number FROM card
+        WHERE name = :name AND card_set_concat = :cardSetConcat
+        LIMIT 1
+        """, nativeQuery = true)
+    CardSearchResult getCardsByNameAndCardSetConcat(@Param("name") String name, @Param("cardSetConcat") String cardSetConcat);
 }

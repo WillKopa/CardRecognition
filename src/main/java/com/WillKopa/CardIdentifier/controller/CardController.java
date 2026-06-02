@@ -1,7 +1,9 @@
 package com.WillKopa.CardIdentifier.controller;
 
 import ai.onnxruntime.OrtException;
+import com.WillKopa.CardIdentifier.exception.InvalidImageException;
 import com.WillKopa.CardIdentifier.model.Card;
+import com.WillKopa.CardIdentifier.model.CardSearchResult;
 import com.WillKopa.CardIdentifier.service.CardService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,11 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Date;
 
 @Slf4j
 @AllArgsConstructor
@@ -28,14 +28,27 @@ public class CardController {
     @PostMapping("/identify")
     public ResponseEntity<?> identifyCard(@RequestParam MultipartFile imageFile) {
         log.info("Received request");
+        CardSearchResult result;
+        Path savePath = Paths.get("test/" + imageFile.getOriginalFilename());
+
         try {
-            Path savePath = Paths.get("test/" + imageFile.getOriginalFilename());
+//            Path savePath = Paths.get("test/" + result.getName() + " " + result.getCardSetConcat() + ".jpg");
             Files.createDirectories(savePath.getParent());
             Files.write(savePath, imageFile.getBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return new ResponseEntity<>(HttpStatus.OK);
+
+        try {
+            result = cardService.identifyCard(savePath.toString());
+            if (result == null) {
+                return new ResponseEntity<>("Unable to read image", HttpStatus.BAD_REQUEST);
+            }
+            log.info("Scanned\nName: {}\nSet: {}\nNumber: {}", result.getName(), result.getCardSet(), result.getCardNumber());
+        } catch (InvalidImageException e) {
+            return new ResponseEntity<>("Unable to read image", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(result, HttpStatus.OK);
 //        try {
 //            return new ResponseEntity<>(cardService.identifyCard(imageFile), HttpStatus.OK);
 //        } catch (Exception e) {
