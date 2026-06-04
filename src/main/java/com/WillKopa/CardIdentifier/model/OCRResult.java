@@ -3,9 +3,10 @@ package com.WillKopa.CardIdentifier.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.List;
+
 @AllArgsConstructor
 @Data
 public class OCRResult {
-    private String name;
-    private String cardNumberConcat;
+    private List<String> results;
 }

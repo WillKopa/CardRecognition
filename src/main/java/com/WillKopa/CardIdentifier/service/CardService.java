@@ -3,7 +3,7 @@ package com.WillKopa.CardIdentifier.service;
 import ai.onnxruntime.OrtException;
 import com.WillKopa.CardIdentifier.converter.VectorConverter;
 import com.WillKopa.CardIdentifier.exception.InvalidImageException;
-import com.WillKopa.CardIdentifier.internal.OCR;
+import com.WillKopa.CardIdentifier.exception.NoOcrResultException;
 import com.WillKopa.CardIdentifier.model.Card;
 import com.WillKopa.CardIdentifier.model.CardSearchResult;
 import com.WillKopa.CardIdentifier.model.OCRResult;
@@ -14,36 +14,23 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
 public class CardService {
-    // 40.5f seems to work. Only tested on 3 cards so far.
-    private static final float matchThreshold = 40.5f;
     private final EmbeddingService embeddingService;
     private CardRepo cardRepo;
+    private final OcrService ocrService;
 
-    public CardSearchResult identifyCard(String savePath) throws InvalidImageException {
-//        String vectorString = toVectorString(imageFile);
-//        Card match = cardRepo.identifyCard(vectorString, matchThreshold);
-//
-//        if (match == null) {
-//            throw new RuntimeException("No match found");
-//        }
-//        match.setImageEmbedding(new float[0]);
+    public List<String> identifyCard(MultipartFile imageFile) throws InvalidImageException, NoOcrResultException {
+        List<String> result = ocrService.performPokemonOcr(imageFile);
 
-        OCRResult result = OCR.identifyPokemonCard(savePath);
+        System.out.println("Results: " + result);
 
-        System.out.println("Name: " + result.getName() + "\nNumber: " + result.getCardNumberConcat());
+        return result;
 
-        CardSearchResult searchResult = cardRepo.getCardsByNameAndCardSetConcat(result.getName(), result.getCardNumberConcat());
-
-        if (searchResult == null) {
-            result = OCR.identifyPokemonItemCard(savePath);
-            return cardRepo.getCardsByNameAndCardSetConcat(result.getName(), result.getCardNumberConcat());
-        }
-
-        return searchResult;
+//        return cardRepo.getCardsByNameAndCardSetConcat(result.get(0), result.get(1));
     }
 
     private String toVectorString(MultipartFile imageFile) throws IOException, OrtException {
