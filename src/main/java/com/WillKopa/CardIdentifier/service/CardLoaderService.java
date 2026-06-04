@@ -1,7 +1,5 @@
 package com.WillKopa.CardIdentifier.service;
 
-import ai.onnxruntime.OrtException;
-import com.WillKopa.CardIdentifier.converter.VectorConverter;
 import com.WillKopa.CardIdentifier.model.Card;
 import com.WillKopa.CardIdentifier.model.PokemonTCGResponse;
 import com.WillKopa.CardIdentifier.repo.CardRepo;
@@ -34,7 +32,6 @@ public class CardLoaderService {
     private static final int TIMEOUT = 3;
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private final RestTemplate restTemplate;
-    private final EmbeddingService embeddingService;
     private final CardRepo cardRepo;
 
     public void loadPokemon(int startPage) {
@@ -57,17 +54,6 @@ public class CardLoaderService {
 
                 BufferedImage image = getImageFromURL(cardData.getImages().getLarge());
 
-                if (image != null) {
-                    try {
-                        card.setImageEmbedding(embeddingService.bufferedImageToEmbeddings(image));
-                    } catch (OrtException e) {
-                        log.error("Error setting embeddings for {} {}", card.getId(), card.getName());
-                        continue;
-                    }
-                } else {
-                    continue;
-                }
-
                 if (cardData.getTcgplayer() != null) {
                     card.setPriceTypes(MAPPER.writeValueAsString(cardData.getTcgplayer().getPrices()));
                     card.setLastUpdate(cardData.getTcgplayer().getUpdatedAt());
@@ -86,7 +72,6 @@ public class CardLoaderService {
                         card.getCardNumber(),
                         card.getSetPrintedTotal(),
                         card.getCardSetConcat(),
-                        VectorConverter.embeddingToString(card.getImageEmbedding()),
                         card.getPriceTypes(),
                         card.getLastUpdate()
                 );
