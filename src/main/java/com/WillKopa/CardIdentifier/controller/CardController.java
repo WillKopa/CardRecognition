@@ -35,6 +35,8 @@ public class CardController {
 //            Path savePath = Paths.get("test/" + result.getName() + " " + result.getCardSetConcat() + ".jpg");
             Files.createDirectories(savePath.getParent());
             Files.write(savePath, imageFile.getBytes());
+
+            // TODO delete file before returning a response.
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

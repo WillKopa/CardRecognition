@@ -33,6 +33,7 @@ public class OCR {
         ITesseract tesseract = new Tesseract();
         tesseract.setDatapath("/usr/share/tesseract-ocr/5/tessdata");
         tesseract.setLanguage("eng");
+        tesseract.setOcrEngineMode(1);
         BufferedImage image = processImage(filePath);
 
 
@@ -48,10 +49,49 @@ public class OCR {
         return new OCRResult(name, cardNumberConcat);
     }
 
+
+    public static OCRResult identifyPokemonItemCard(String filePath) throws InvalidImageException {
+        ITesseract tesseract = new Tesseract();
+        tesseract.setDatapath("/usr/share/tesseract-ocr/5/tessdata");
+        tesseract.setLanguage("eng");
+        BufferedImage image = processImage(filePath);
+
+
+//        try {
+//            image = ImageIO.read(imageFile.getInputStream());
+//        } catch (IOException e) {
+//            log.error("Error converting received image to BufferedImage", e);
+//            throw new InvalidImageException("Image invalid");
+//        }
+
+        String name = getPokemonItemName(image, tesseract);
+        String cardNumberConcat = getPokemonCardNumberConcat(image, tesseract);
+        return new OCRResult(name, cardNumberConcat);
+    }
+
     private static String getPokemonName(BufferedImage image, ITesseract tesseract) {
         int width = image.getWidth();
         int height = image.getHeight();
         int x1 = (int) (0.17 * width);
+        int y1 = (int) (0.04 * height);
+        int x2 = (int) (0.50 * width);
+        int y2 = (int) (0.10 * height);
+
+        String result = cropAndOCRImage(image, x1, y1, x2, y2, tesseract);
+
+        try {
+            Pattern namePattern = Pattern.compile("\\w+");
+            return extractNameFromResult(result, namePattern);
+        } catch (NameNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+    };
+
+    private static String getPokemonItemName(BufferedImage image, ITesseract tesseract) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int x1 = (int) (0.05 * width);
         int y1 = (int) (0.04 * height);
         int x2 = (int) (0.70 * width);
         int y2 = (int) (0.10 * height);
@@ -59,7 +99,8 @@ public class OCR {
         String result = cropAndOCRImage(image, x1, y1, x2, y2, tesseract);
 
         try {
-            return extractNameFromResult(result);
+            Pattern namePattern = Pattern.compile("\\b[A-Z]\\w+[\\s-][A-Z]\\w+[\\s-][A-Z]\\w+\\b");
+            return extractNameFromResult(result, namePattern);
         } catch (NameNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -69,10 +110,10 @@ public class OCR {
     private static String getPokemonCardNumberConcat(BufferedImage image, ITesseract tesseract) {
         int width = image.getWidth();
         int height = image.getHeight();
-        int x1 = (int) (0.15 * width);
-        int y1 = (int) (0.90 * height);
-        int x2 = (int) (0.5 * width);
-        int y2 = (int) (0.10 * height);
+        int x1 = (int) (0.16 * width);
+        int y1 = (int) (0.93 * height);
+        int x2 = (int) (0.13 * width);
+        int y2 = (int) (0.04 * height);
 
         String result = cropAndOCRImage(image, x1, y1, x2, y2, tesseract);
 
@@ -98,9 +139,8 @@ public class OCR {
         }
     }
 
-    private static String extractNameFromResult(String result) throws NameNotFoundException {
-        Pattern namePattern = Pattern.compile("\\w+");
-        Matcher nameMatch = namePattern.matcher(result);
+    private static String extractNameFromResult(String result, Pattern pattern) throws NameNotFoundException {
+        Matcher nameMatch = pattern.matcher(result);
 
         if (nameMatch.find()) {
             return nameMatch.group(0);
@@ -130,11 +170,11 @@ public class OCR {
     // Turns the MultipartFile into a Mat, then applies gray scale, sharpening, and resizing, then returns as a BufferedImage.
     private static BufferedImage processImage(String filePath) throws InvalidImageException {
 
-        Mat grayImage = imread(filePath.toString(), IMREAD_GRAYSCALE);
+        Mat grayImage = imread(filePath, IMREAD_GRAYSCALE);
 
         Mat sharpened = new Mat();
         GaussianBlur(grayImage, sharpened, new Size(0, 0), 3);
-        addWeighted(grayImage, 1.5, sharpened, 0, 0, sharpened);
+        addWeighted(grayImage, 1.5, sharpened, -0.5, 0, sharpened);
 
 
         Mat upscaled = new Mat();

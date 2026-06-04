@@ -34,7 +34,16 @@ public class CardService {
 
         OCRResult result = OCR.identifyPokemonCard(savePath);
 
-        return cardRepo.getCardsByNameAndCardSetConcat(result.getName(), result.getCardNumberConcat());
+        System.out.println("Name: " + result.getName() + "\nNumber: " + result.getCardNumberConcat());
+
+        CardSearchResult searchResult = cardRepo.getCardsByNameAndCardSetConcat(result.getName(), result.getCardNumberConcat());
+
+        if (searchResult == null) {
+            result = OCR.identifyPokemonItemCard(savePath);
+            return cardRepo.getCardsByNameAndCardSetConcat(result.getName(), result.getCardNumberConcat());
+        }
+
+        return searchResult;
     }
 
     private String toVectorString(MultipartFile imageFile) throws IOException, OrtException {
