@@ -22,7 +22,8 @@ import java.util.List;
 @Service
 public class OcrService {
     private final RestTemplate restTemplate = new RestTemplate();
-    private static final String OCR_URL = "http://localhost:5000/ocr";
+    private static final String OCR_URL = "http://localhost:5000/ocr"; // Used for local testing
+//    private static final String OCR_URL = "http://python-service:5000/ocr"; // Used in docker
 
     public List<String> performPokemonOcr(MultipartFile file) throws InvalidImageException, NoOcrResultException {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
@@ -43,6 +44,7 @@ public class OcrService {
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity =
                 new HttpEntity<>(body, headers);
+
 
         ResponseEntity<OCRResult> response = restTemplate.postForEntity(
                 OCR_URL,

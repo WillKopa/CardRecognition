@@ -2,6 +2,7 @@ package com.WillKopa.CardIdentifier.service;
 
 import com.WillKopa.CardIdentifier.exception.InvalidImageException;
 import com.WillKopa.CardIdentifier.exception.NoOcrResultException;
+import com.WillKopa.CardIdentifier.model.CardSearchResult;
 import com.WillKopa.CardIdentifier.repo.CardRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,13 +16,12 @@ public class CardService {
     private CardRepo cardRepo;
     private final OcrService ocrService;
 
-    public List<String> identifyCard(MultipartFile imageFile) throws InvalidImageException, NoOcrResultException {
+    public CardSearchResult identifyCard(MultipartFile imageFile) throws InvalidImageException, NoOcrResultException {
         List<String> result = ocrService.performPokemonOcr(imageFile);
 
         System.out.println("Results: " + result);
 
-        return result;
 
-//        return cardRepo.getCardsByNameAndCardSetConcat(result.get(0), result.get(1));
+        return cardRepo.getCardsByNameAndCardSetConcat(result.get(0), result.get(1) + "/" + result.get(2));
     }
 }

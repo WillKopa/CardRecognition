@@ -2,6 +2,7 @@ package com.WillKopa.CardIdentifier.controller;
 
 import com.WillKopa.CardIdentifier.exception.InvalidImageException;
 import com.WillKopa.CardIdentifier.exception.NoOcrResultException;
+import com.WillKopa.CardIdentifier.model.CardSearchResult;
 import com.WillKopa.CardIdentifier.service.CardService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,7 @@ public class CardController {
     public ResponseEntity<?> identifyCard(@RequestParam MultipartFile imageFile) {
         log.info("Received request");
 //        CardSearchResult result;
-        List<String> result;
+        CardSearchResult result;
         try {
             result = cardService.identifyCard(imageFile);
             if (result == null) {
