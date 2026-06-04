@@ -16,8 +16,8 @@ public interface CardRepo extends JpaRepository<Card, Integer> {
     @Modifying
     @Transactional
     @Query(value = """
-    INSERT INTO card ("external_db_id", game, name, card_set, card_set_id, card_number, set_printed_total, card_set_concat, price_types, last_update)
-    VALUES (:externalDbId, :game, :name, :cardSet, :cardSetId, :cardNumber, :setPrintedTotal, :cardSetConcat, CAST(:priceTypes AS jsonb), :lastUpdate)
+    INSERT INTO card ("external_db_id", game, name, card_set, card_set_id, card_number, set_printed_total, price_types, last_update)
+    VALUES (:externalDbId, :game, :name, :cardSet, :cardSetId, :cardNumber, :setPrintedTotal, CAST(:priceTypes AS jsonb), :lastUpdate)
     """, nativeQuery = true)
 
     void saveWithEmbedding(
@@ -28,15 +28,14 @@ public interface CardRepo extends JpaRepository<Card, Integer> {
             @Param("cardSetId") String cardSetId,
             @Param("cardNumber") int cardNumber,
             @Param("setPrintedTotal") int setPrintedTotal,
-            @Param("cardSetConcat") String cardSetConcat,
             @Param("priceTypes") String priceTypes,
             @Param("lastUpdate") Date lastUpdate
     );
 
     @Query(value = """
         SELECT name, card_set, card_number FROM card
-        WHERE name = :name AND card_set_concat = :cardSetConcat
+        WHERE name LIKE :name AND card_number = :cardNumber AND set_printed_total = :setPrintedTotal
         LIMIT 1
         """, nativeQuery = true)
-    CardSearchResult getCardsByNameAndCardSetConcat(@Param("name") String name, @Param("cardSetConcat") String cardSetConcat);
+    CardSearchResult getCardsByNameAndCardSetConcat(@Param("name") String name, @Param("cardNumber") int cardNumber, @Param("setPrintedTotal") int setPrintedTotal);
 }

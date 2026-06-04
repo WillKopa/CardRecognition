@@ -50,9 +50,6 @@ public class CardLoaderService {
                 card.setCardSetId(cardData.getSet().getId());
                 card.setCardNumber(cardData.getNumber());
                 card.setSetPrintedTotal(cardData.getSet().getPrintedTotal());
-                card.setCardSetConcat(card.getCardNumber() + "/" + card.getSetPrintedTotal());
-
-                BufferedImage image = getImageFromURL(cardData.getImages().getLarge());
 
                 if (cardData.getTcgplayer() != null) {
                     card.setPriceTypes(MAPPER.writeValueAsString(cardData.getTcgplayer().getPrices()));
@@ -71,7 +68,6 @@ public class CardLoaderService {
                         card.getCardSetId(),
                         card.getCardNumber(),
                         card.getSetPrintedTotal(),
-                        card.getCardSetConcat(),
                         card.getPriceTypes(),
                         card.getLastUpdate()
                 );

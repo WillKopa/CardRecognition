@@ -10,5 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 public class OCRResult {
-    private List<String> results;
+    private String name;
+    private Integer cardNumber;
+    private Integer setPrintedTotal;
 }
