@@ -25,24 +25,16 @@ public class CardController {
     @PostMapping("/identify")
     public ResponseEntity<?> identifyCard(@RequestParam MultipartFile imageFile) {
         log.info("Received request");
-//        CardSearchResult result;
-        CardSearchResult result;
         try {
-            result = cardService.identifyCard(imageFile);
+            CardSearchResult result = cardService.identifyCard(imageFile);
             if (result == null) {
                 return new ResponseEntity<>("Unable to read image", HttpStatus.BAD_REQUEST);
             }
-//            log.info("Scanned\nName: {}\nSet: {}\nNumber: {}", result.getName(), result.getCardSet(), result.getCardNumber());
+            log.info("Scanned\nName: {}\nSet: {}\nNumber: {}", result.getName(), result.getCardSet(), result.getCardNumber());
+            return new ResponseEntity<>(result, HttpStatus.OK);
         } catch (InvalidImageException | NoOcrResultException e) {
             return new ResponseEntity<>("Unable to read image", HttpStatus.BAD_REQUEST);
         }
-
-        return new ResponseEntity<>(result, HttpStatus.OK);
-//        try {
-//            return new ResponseEntity<>(cardService.identifyCard(imageFile), HttpStatus.OK);
-//        } catch (Exception e) {
-//            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-//        }
     }
 
     //Adding to test connection from phone
