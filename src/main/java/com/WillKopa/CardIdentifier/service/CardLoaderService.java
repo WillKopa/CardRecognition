@@ -5,6 +5,7 @@ import com.WillKopa.CardIdentifier.model.PokemonTCGResponse;
 import com.WillKopa.CardIdentifier.repo.CardRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.tcgdex.sdk.TCGdex;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -24,7 +25,8 @@ import java.util.concurrent.TimeUnit;
 @Service
 @RequiredArgsConstructor
 public class CardLoaderService {
-    private static final String POKEMON_API_URL = "https://api.pokemontcg.io/v2/cards?page=%d&pageSize=%d";
+    private static final String POKEMON_API_URL = "https://api.pokemontcg.io/v2/cards";
+    private static final String POKEMON_API_SEARCH_URL = POKEMON_API_URL + "?page=%d&pageSize=%d";
     private static final String POKEMON = "Pokemon tcg";
     @Value("${pokemon.api.key:}")
     private String apiKey;
@@ -33,9 +35,10 @@ public class CardLoaderService {
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private final RestTemplate restTemplate;
     private final CardRepo cardRepo;
+    private final TCGdex tcGdex = new TCGdex("en");
 
     public void loadPokemon(int startPage) {
-        String url = String.format(POKEMON_API_URL, startPage, PAGE_SIZE);
+        String url = String.format(POKEMON_API_SEARCH_URL, startPage, PAGE_SIZE);
         PokemonTCGResponse response = getCards(url);
         while(!response.getData().isEmpty()) {
             log.info("Loading Pokemon from url: {} \nPager number: {}", url, startPage);
@@ -86,6 +89,10 @@ public class CardLoaderService {
         }
 
         log.info("Finished loading from: {}", url);
+    }
+
+    public void getCard(String cardId) {
+        System.out.println(tcGdex.fetchCard("ex7-72"));
     }
 
     private BufferedImage getImageFromURL(String url) {

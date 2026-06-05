@@ -33,7 +33,7 @@ public interface CardRepo extends JpaRepository<Card, Integer> {
     );
 
     @Query(value = """
-        SELECT name, card_set, card_number FROM card
+        SELECT name, card_set, card_number, external_db_id FROM card
         WHERE name LIKE :name AND card_number = :cardNumber AND set_printed_total = :setPrintedTotal
         LIMIT 1
         """, nativeQuery = true)

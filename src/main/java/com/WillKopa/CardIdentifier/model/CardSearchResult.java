@@ -4,4 +4,5 @@ public interface CardSearchResult {
     String getName();
     String getCardSet();
     String getCardNumber();
+    String getExternalDbId();
 }
