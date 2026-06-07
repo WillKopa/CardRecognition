@@ -1,11 +1,17 @@
 package com.WillKopa.CardIdentifier.service;
 
 import com.WillKopa.CardIdentifier.model.Card;
+import com.WillKopa.CardIdentifier.model.CardSearchResult;
 import com.WillKopa.CardIdentifier.model.PokemonTCGResponse;
 import com.WillKopa.CardIdentifier.repo.CardRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.tcgdex.sdk.Extension;
+import net.tcgdex.sdk.Quality;
 import net.tcgdex.sdk.TCGdex;
+import net.tcgdex.sdk.models.Pricing;
+import net.tcgdex.sdk.models.subs.PricingTcgPlayer;
+import net.tcgdex.sdk.models.subs.PricingTcgPlayerVariant;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -19,6 +25,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Date;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -91,8 +98,37 @@ public class CardLoaderService {
         log.info("Finished loading from: {}", url);
     }
 
-    public void getCard(String cardId) {
-        System.out.println(tcGdex.fetchCard("ex7-72"));
+    public net.tcgdex.sdk.models.Card getCard(String cardId) {
+        return tcGdex.fetchCard(cardId);
+    }
+
+    public void getCardPriceAndImageURL(CardSearchResult card) {
+        Optional<net.tcgdex.sdk.models.Card> responseOptional = Optional.ofNullable(getCard(card.getExternalDbId()));
+        Optional<PricingTcgPlayer> tcgPlayerOptional = responseOptional
+                .map(net.tcgdex.sdk.models.Card::getPricing)
+                .map(Pricing::getTcgplayer);
+
+        card.setImageURL(responseOptional.map(
+                r -> r.getImageUrl(Quality.HIGH, Extension.WEBP)).orElse(null)
+        );
+
+        card.setMarketPriceNormal(tcgPlayerOptional
+                .map(PricingTcgPlayer::getNormal)
+                .map(PricingTcgPlayerVariant::getMarketPrice)
+                .orElse(null)
+        );
+
+        card.setMarketPriceHolo(tcgPlayerOptional
+                .map(PricingTcgPlayer::getHoloFoil)
+                .map(PricingTcgPlayerVariant::getMarketPrice)
+                .orElse(null)
+        );
+
+        card.setMarketPriceReverseHolo(tcgPlayerOptional
+                .map(PricingTcgPlayer::getReverseHolofoil)
+                .map(PricingTcgPlayerVariant::getMarketPrice)
+                .orElse(null)
+        );
     }
 
     private BufferedImage getImageFromURL(String url) {

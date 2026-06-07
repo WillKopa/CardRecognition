@@ -27,7 +27,7 @@ public class CardService {
                 "\nNumber: " + card.getCardNumber() +
                 "\nPrinted total: " + card.getCardSet() +
                 "\nExternal Id: " + card.getExternalDbId());
-        cardLoaderService.getCard(card.getExternalDbId());
+        cardLoaderService.getCardPriceAndImageURL(card);
 
         return card;
     }
