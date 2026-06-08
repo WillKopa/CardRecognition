@@ -29,7 +29,7 @@ public class CardController {
         log.info("Received request");
         CardSearchResult result = cardService.identifyCard(imageFile);
         log.info("Scanned\nName: {}\nSet: {}\nNumber: {}", result.getName(), result.getCardSet(), result.getCardNumber());
-        return new ResponseEntity<CardSearchResult>(result, HttpStatus.OK);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     //Adding to test connection from phone

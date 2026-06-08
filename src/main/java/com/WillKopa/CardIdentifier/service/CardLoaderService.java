@@ -26,6 +26,8 @@ public class CardLoaderService {
                     updatedCard.setCardSetId(card.getSet().getId());
                     updatedCard.setSetOfficialPrintedTotal(card.getSet().getCardCount().getOfficial());
                     cardRepo.updateCard(updatedCard);
+
+                    result.setCardSet(updatedCard.getCardSet());
                 }
         );
     }
