@@ -20,11 +20,6 @@ public class Card {
     private String name;
     private String cardSet;
     private String cardSetId;
-    private int cardNumber;
-    private int setPrintedTotal;
-    private String cardSetConcat;
-
-    @Column(columnDefinition = "jsonb")
-    private String priceTypes;
-    private Date lastUpdate;
+    private String cardNumber;
+    private int setOfficialPrintedTotal;
 }

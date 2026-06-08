@@ -17,17 +17,23 @@ import org.springframework.web.multipart.MultipartFile;
 public class CardService {
     private CardRepo cardRepo;
     private final OcrService ocrService;
+    private final TCGDexService TCGDexService;
     private final CardLoaderService cardLoaderService;
 
     public CardSearchResult identifyCard(MultipartFile imageFile) throws InvalidImageException, NoOcrResultException {
         OCRResult result = ocrService.performPokemonOcr(imageFile);
         log.info("OCR Response {}", result);
-        CardSearchResult card = cardRepo.getCardsByNameAndCardSetConcat("%" + result.getName() + "%", result.getCardNumber(), result.getSetPrintedTotal());
+        CardSearchResult card = cardRepo.getCardsByNameAndNumber("%" + result.getName() + "%", result.getCardNumber());
+
+        if (card.getCardNumber().isEmpty()) {
+            cardLoaderService.updateCard(card);
+        }
+
         System.out.println("Name: " + card.getName() +
                 "\nNumber: " + card.getCardNumber() +
                 "\nPrinted total: " + card.getCardSet() +
                 "\nExternal Id: " + card.getExternalDbId());
-        cardLoaderService.getCardPriceAndImageURL(card);
+        TCGDexService.getCardPriceAndImageURL(card);
 
         return card;
     }

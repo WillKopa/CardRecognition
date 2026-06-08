@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @Data
 public class OCRResult {
     private String name;
-    private Integer cardNumber;
-    private Integer setPrintedTotal;
+    private String cardNumber;
+    private String setPrintedTotal;
 }

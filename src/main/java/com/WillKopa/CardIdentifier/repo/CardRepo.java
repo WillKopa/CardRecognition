@@ -15,27 +15,18 @@ import java.util.Date;
 public interface CardRepo extends JpaRepository<Card, Integer> {
     @Modifying
     @Transactional
-    @Query(value = """
-    INSERT INTO card ("external_db_id", game, name, card_set, card_set_id, card_number, set_printed_total, price_types, last_update)
-    VALUES (:externalDbId, :game, :name, :cardSet, :cardSetId, :cardNumber, :setPrintedTotal, CAST(:priceTypes AS jsonb), :lastUpdate)
-    """, nativeQuery = true)
-
-    void saveWithEmbedding(
-            @Param("externalDbId") String externalDbId,
-            @Param("game") String game,
-            @Param("name") String name,
-            @Param("cardSet") String cardSet,
-            @Param("cardSetId") String cardSetId,
-            @Param("cardNumber") int cardNumber,
-            @Param("setPrintedTotal") int setPrintedTotal,
-            @Param("priceTypes") String priceTypes,
-            @Param("lastUpdate") Date lastUpdate
-    );
+    @Query("""
+    UPDATE Card c
+    SET c.cardSet = :#{#updatedCard.cardSet},
+        c.cardSetId = :#{#updatedCard.cardSetId},
+        c.setOfficialPrintedTotal = :#{updatedCard.setOfficialPrintedTotal}
+    WHERE c.id = :#{#updatedCard.id}
+    """)
+    void updateCard(@Param("updatedCard") Card updatedCard);
 
     @Query(value = """
         SELECT name, card_set, card_number, external_db_id FROM card
-        WHERE name LIKE :name AND card_number = :cardNumber AND set_printed_total = :setPrintedTotal
-        LIMIT 1
+        WHERE name LIKE :name AND card_number = :cardNumber
         """, nativeQuery = true)
-    CardSearchResult getCardsByNameAndCardSetConcat(@Param("name") String name, @Param("cardNumber") int cardNumber, @Param("setPrintedTotal") int setPrintedTotal);
+    CardSearchResult getCardsByNameAndNumber(@Param("name") String name, @Param("cardNumber") String cardNumber);
 }

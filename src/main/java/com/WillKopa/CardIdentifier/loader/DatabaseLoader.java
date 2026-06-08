@@ -14,12 +14,6 @@ public class DatabaseLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        int startPage = 1;
-
-        if (args.length > 0) {
-            startPage = Integer.parseInt(args[0]);
-        }
-
-        cardLoaderService.loadPokemon(startPage);
+        cardLoaderService.loadPokemon();
     }
 }

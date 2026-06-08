@@ -2,158 +2,53 @@ package com.WillKopa.CardIdentifier.service;
 
 import com.WillKopa.CardIdentifier.model.Card;
 import com.WillKopa.CardIdentifier.model.CardSearchResult;
-import com.WillKopa.CardIdentifier.model.PokemonTCGResponse;
 import com.WillKopa.CardIdentifier.repo.CardRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.tcgdex.sdk.Extension;
-import net.tcgdex.sdk.Quality;
 import net.tcgdex.sdk.TCGdex;
-import net.tcgdex.sdk.models.Pricing;
-import net.tcgdex.sdk.models.subs.PricingTcgPlayer;
-import net.tcgdex.sdk.models.subs.PricingTcgPlayerVariant;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
+import net.tcgdex.sdk.models.CardResume;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import tools.jackson.databind.ObjectMapper;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.util.Date;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class CardLoaderService {
-    private static final String POKEMON_API_URL = "https://api.pokemontcg.io/v2/cards";
-    private static final String POKEMON_API_SEARCH_URL = POKEMON_API_URL + "?page=%d&pageSize=%d";
-    private static final String POKEMON = "Pokemon tcg";
-    @Value("${pokemon.api.key:}")
-    private String apiKey;
-    private static final int PAGE_SIZE = 250;
-    private static final int TIMEOUT = 3;
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-    private final RestTemplate restTemplate;
     private final CardRepo cardRepo;
     private final TCGdex tcGdex = new TCGdex("en");
 
-    public void loadPokemon(int startPage) {
-        String url = String.format(POKEMON_API_SEARCH_URL, startPage, PAGE_SIZE);
-        PokemonTCGResponse response = getCards(url);
-        while(!response.getData().isEmpty()) {
-            log.info("Loading Pokemon from url: {} \nPager number: {}", url, startPage);
-            // Parse data from response and save it to a new Card object.
-            for (PokemonTCGResponse.CardData cardData : response.getData()) {
-                log.info("Loading new Pokemon: {}: {}", cardData.getId(), cardData.getName());
-                Card card = new Card();
-                card.setExternalDbId(cardData.getId());
-                card.setGame(POKEMON);
-                card.setName(cardData.getName());
-                card.setCardSet(cardData.getSet().getName());
-                card.setCardSetId(cardData.getSet().getId());
-                card.setCardNumber(cardData.getNumber());
-                card.setSetPrintedTotal(cardData.getSet().getPrintedTotal());
-
-                if (cardData.getTcgplayer() != null) {
-                    card.setPriceTypes(MAPPER.writeValueAsString(cardData.getTcgplayer().getPrices()));
-                    card.setLastUpdate(cardData.getTcgplayer().getUpdatedAt());
-                } else {
-                    card.setPriceTypes(null);
-                    card.setLastUpdate(new Date());
+    public void updateCard(CardSearchResult result) {
+        Optional.ofNullable(tcGdex.fetchCard(result.getExternalDbId())).ifPresent(card -> {
+                    Card updatedCard = new Card();
+                    updatedCard.setId(result.getId());
+                    updatedCard.setCardSet(card.getSet().getName());
+                    updatedCard.setCardSetId(card.getSet().getId());
+                    updatedCard.setSetOfficialPrintedTotal(card.getSet().getCardCount().getOfficial());
+                    cardRepo.updateCard(updatedCard);
                 }
+        );
+    }
 
+    public void loadPokemon() {
+        final String POKEMON = "Pokemon TCG";
+        Optional.ofNullable(tcGdex.fetchCards())
+                .ifPresent(allCards -> {
+            for (CardResume cardResume : allCards) {
+                log.info("Loading Pokemon: {} \nNumber: {}", cardResume.getName(), cardResume.getLocalId());
+                // Parse data from response and save it to a new Card object.
+                Card card = new Card();
+                card.setExternalDbId(cardResume.getId());
+                card.setGame(POKEMON);
+                card.setName(cardResume.getName());
+                card.setCardSet(null);
+                card.setCardSetId(null);
+                card.setCardNumber(cardResume.getLocalId());
+                card.setSetOfficialPrintedTotal(-1);
 
-                cardRepo.saveWithEmbedding(
-                        card.getExternalDbId(),
-                        card.getGame(),
-                        card.getName(),
-                        card.getCardSet(),
-                        card.getCardSetId(),
-                        card.getCardNumber(),
-                        card.getSetPrintedTotal(),
-                        card.getPriceTypes(),
-                        card.getLastUpdate()
-                );
+                cardRepo.save(card);
             }
-
-            // Go to next page and pull in new response.
-            try {
-                TimeUnit.SECONDS.sleep(TIMEOUT);
-            } catch (InterruptedException e) {
-                log.error("Sleep was interrupted on page {}", startPage, e);
-                break;
-            }
-            startPage++;
-            url = String.format(POKEMON_API_URL, startPage, PAGE_SIZE);
-            response = getCards(url);
-        }
-
-        log.info("Finished loading from: {}", url);
-    }
-
-    public net.tcgdex.sdk.models.Card getCard(String cardId) {
-        return tcGdex.fetchCard(cardId);
-    }
-
-    public void getCardPriceAndImageURL(CardSearchResult card) {
-        Optional<net.tcgdex.sdk.models.Card> responseOptional = Optional.ofNullable(getCard(card.getExternalDbId()));
-        Optional<PricingTcgPlayer> tcgPlayerOptional = responseOptional
-                .map(net.tcgdex.sdk.models.Card::getPricing)
-                .map(Pricing::getTcgplayer);
-
-        card.setImageURL(responseOptional.map(
-                r -> r.getImageUrl(Quality.HIGH, Extension.WEBP)).orElse(null)
-        );
-
-        card.setMarketPriceNormal(tcgPlayerOptional
-                .map(PricingTcgPlayer::getNormal)
-                .map(PricingTcgPlayerVariant::getMarketPrice)
-                .orElse(null)
-        );
-
-        card.setMarketPriceHolo(tcgPlayerOptional
-                .map(PricingTcgPlayer::getHoloFoil)
-                .map(PricingTcgPlayerVariant::getMarketPrice)
-                .orElse(null)
-        );
-
-        card.setMarketPriceReverseHolo(tcgPlayerOptional
-                .map(PricingTcgPlayer::getReverseHolofoil)
-                .map(PricingTcgPlayerVariant::getMarketPrice)
-                .orElse(null)
-        );
-    }
-
-    private BufferedImage getImageFromURL(String url) {
-        try {
-            return ImageIO.read(URI.create(url).toURL());
-        } catch (MalformedURLException e) {
-            log.error("Malformed URL: ", e);
-        } catch (IOException e){
-            log.error("Error reading image file: ", e);
-        }
-        return null;
-    }
-
-    private HttpEntity<Void> getRequestEntity() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("X-Api-Key", apiKey);
-        return new HttpEntity<>(headers);
-    }
-
-    private PokemonTCGResponse getCards(String url) {
-        return restTemplate.getForObject(url, PokemonTCGResponse.class);
-//        ResponseEntity<PokemonTCGResponse> response = restTemplate.exchange(url,
-//                HttpMethod.GET,
-//                getRequestEntity(),
-//                PokemonTCGResponse.class);
-//        return response.getBody();
+        });
+        log.info("Finished loading from card");
     }
 }
