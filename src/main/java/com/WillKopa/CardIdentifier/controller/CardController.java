@@ -2,6 +2,7 @@ package com.WillKopa.CardIdentifier.controller;
 
 import com.WillKopa.CardIdentifier.exception.InvalidImageException;
 import com.WillKopa.CardIdentifier.exception.NoOcrResultException;
+import com.WillKopa.CardIdentifier.model.CardAddRequest;
 import com.WillKopa.CardIdentifier.model.CardSearchResult;
 import com.WillKopa.CardIdentifier.service.CardService;
 import lombok.AllArgsConstructor;
@@ -19,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class CardController {
 
     private CardService cardService;
+//    private UserService userService;
 
 
     @PostMapping(
@@ -31,6 +33,11 @@ public class CardController {
         log.info("Scanned\nName: {}\nSet: {}\nNumber: {}", result.getName(), result.getCardSet(), result.getCardNumber());
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
+
+//    @PostMapping("/addCard")
+//    public ResponseEntity<?> addCard(@RequestBody CardAddRequest addRequest) {
+//        userService.addCard(addRequest);
+//    }
 
     //Adding to test connection from phone
     @GetMapping("/hello")
