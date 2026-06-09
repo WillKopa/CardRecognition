@@ -14,14 +14,5 @@ from the properties.
 
 ### Testing with Postman 
 * `/identify` will take `imageFile` as a key
-* `/load` will take
-  * `imageFile`
-  * `game`
-  * `name`
-  * `cardSet`
-  * `lastSoldPrice`
-
-
-If cards are not being matched. Change the threshold in `CardService`. The higher the threshold the looser the matching.
 
 Pokemon cards are about 2.5 inches wide and 3.5 inches long

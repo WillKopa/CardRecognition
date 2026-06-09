@@ -1,22 +1,28 @@
 package com.WillKopa.CardIdentifier.config;
 
+import com.WillKopa.CardIdentifier.converter.GoogleJwtAuthConverter;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@EnableWebSecurity
+@AllArgsConstructor
 public class SecurityConfig {
+    private final GoogleJwtAuthConverter googleJwtAuthConverter;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) {
+        http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/error").permitAll() // Public endpoints
+                        .requestMatchers("/identify", "/error").permitAll() // Public endpoints
                         .anyRequest().authenticated()               // Everything else requires login
                 )
-                .oauth2Login(oauth2 -> oauth2
-                        // This enables the standard Google/OIDC login flow
-                        .defaultSuccessUrl("/loginSuccess", true)
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(googleJwtAuthConverter))
                 );
 
         return http.build();

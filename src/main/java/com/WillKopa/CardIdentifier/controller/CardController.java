@@ -5,11 +5,14 @@ import com.WillKopa.CardIdentifier.exception.NoOcrResultException;
 import com.WillKopa.CardIdentifier.model.CardAddRequest;
 import com.WillKopa.CardIdentifier.model.CardSearchResult;
 import com.WillKopa.CardIdentifier.service.CardService;
+import com.WillKopa.CardIdentifier.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class CardController {
 
     private CardService cardService;
-//    private UserService userService;
+    private UserService userService;
 
 
     @PostMapping(
@@ -34,10 +37,11 @@ public class CardController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-//    @PostMapping("/addCard")
-//    public ResponseEntity<?> addCard(@RequestBody CardAddRequest addRequest) {
-//        userService.addCard(addRequest);
-//    }
+    @PostMapping("/addCard")
+    public ResponseEntity<?> addCard(@RequestBody CardAddRequest addRequest, @AuthenticationPrincipal Jwt jwt) {
+        userService.addCard(addRequest, jwt.getClaimAsString("email"));
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
     //Adding to test connection from phone
     @GetMapping("/hello")
