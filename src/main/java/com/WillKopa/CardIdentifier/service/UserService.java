@@ -62,6 +62,15 @@ public class UserService {
     }
 
     @Transactional
+    public User addCard(Integer id, Float marketPrice, String email) {
+        CardCollectionRequest request = CardCollectionRequest.builder()
+                .cardId(id)
+                .marketValue(marketPrice)
+                .build();
+        return addCard(request, email);
+    }
+
+    @Transactional
     public User removeCard(CardCollectionRequest removeRequest, String email) {
         User user = userRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
         user.getCardList().stream()
