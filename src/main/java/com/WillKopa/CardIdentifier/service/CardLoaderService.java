@@ -1,7 +1,7 @@
 package com.WillKopa.CardIdentifier.service;
 
 import com.WillKopa.CardIdentifier.model.Card;
-import com.WillKopa.CardIdentifier.model.CardSearchResult;
+import com.WillKopa.CardIdentifier.dto.response.CardSearchResult;
 import com.WillKopa.CardIdentifier.repo.CardRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

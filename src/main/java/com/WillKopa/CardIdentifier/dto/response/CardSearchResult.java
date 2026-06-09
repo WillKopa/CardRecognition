@@ -1,8 +1,7 @@
-package com.WillKopa.CardIdentifier.model;
+package com.WillKopa.CardIdentifier.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 
 @AllArgsConstructor

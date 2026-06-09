@@ -11,12 +11,17 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidImageException.class)
     public ResponseEntity<String> handleInvalidImageError(InvalidImageException e) {
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        return ResponseEntity.badRequest().body(e.getMessage());
     }
 
     @ExceptionHandler(NoOcrResultException.class)
     public ResponseEntity<String> handleNoOCRResultError(NoOcrResultException e) {
-        return new ResponseEntity<>("Unable to read image", HttpStatus.BAD_REQUEST);
+        return ResponseEntity.badRequest().body("Unable to read image");
+    }
+
+    @ExceptionHandler(CardNotFoundException.class)
+    public ResponseEntity<String> handleCardNotFoundException(CardNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
