@@ -4,6 +4,7 @@ import com.WillKopa.CardIdentifier.converter.UserConverter;
 import com.WillKopa.CardIdentifier.dto.request.CardCollectionRequest;
 import com.WillKopa.CardIdentifier.dto.response.UserResponse;
 import com.WillKopa.CardIdentifier.exception.CardNotFoundException;
+import com.WillKopa.CardIdentifier.exception.UserAlreadyExistsException;
 import com.WillKopa.CardIdentifier.model.User;
 import com.WillKopa.CardIdentifier.service.UserService;
 import lombok.AllArgsConstructor;
@@ -69,8 +70,34 @@ public class UserController {
      */
     @GetMapping("/getUserInfo")
     public ResponseEntity<UserResponse> getUserInfo(@AuthenticationPrincipal Jwt jwt) {
-        User user = userService.getOrCreateUser(jwt);
+        User user = userService.getUser(jwt);
         UserResponse response = UserConverter.toResponse(user);
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Creates a new user with the email and name from the JWT token.
+     *
+     * @param jwt the JWT token containing authentication information
+     * @return ResponseEntity containing the user response
+     * @throws UserAlreadyExistsException if the user already exists
+     */
+    @PostMapping("/public/createUser")
+    public ResponseEntity<UserResponse> createUser(@AuthenticationPrincipal Jwt jwt) throws UserAlreadyExistsException {
+        User user = userService.createUser(jwt);
+        UserResponse response = UserConverter.toResponse(user);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Deletes the authenticated user from the database.
+     *
+     * @param jwt the JWT token containing authentication information
+     * @return ResponseEntity containing a success message
+     */
+    @DeleteMapping("/deleteUser")
+    public ResponseEntity<String> deleteUser(@AuthenticationPrincipal Jwt jwt) {
+        userService.deleteUser(jwt.getClaimAsString("email"));
+        return ResponseEntity.ok("User deleted successfully");
     }
 }

@@ -39,15 +39,27 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Handles CardNotFoundException by returning a not found response.
+     * Handles CardNotFoundException and UserNotFoundException by returning a not found response.
      *
      * @param e the exception that was thrown
      * @return ResponseEntity containing the error message with NOT_FOUND status
      */
-    @ExceptionHandler(CardNotFoundException.class)
-    public ResponseEntity<String> handleCardNotFoundException(CardNotFoundException e) {
+    @ExceptionHandler({CardNotFoundException.class, UserNotFoundException.class})
+    public ResponseEntity<String> handleCardNotFoundException(Exception e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
+
+    /**
+     * Handles UserAlreadyExistsException by returning a bad request response.
+     *
+     * @param e the exception that was thrown
+     * @return ResponseEntity containing a generic error message with BAD_REQUEST status
+     */
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<String> handleUserAlreadyExistsException(UserAlreadyExistsException e) {
+        return ResponseEntity.badRequest().body("User already exists");
+    }
+
 
     /**
      * Handles all other exceptions by returning an internal server error response.

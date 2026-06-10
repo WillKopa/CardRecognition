@@ -37,4 +37,6 @@ public interface UserRepo extends JpaRepository<User, Integer> {
      */
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.cardList WHERE u.email = :email")
     Optional<User> findByEmailWithCards(@Param("email") String email);
+
+    void deleteByEmail(String email);
 }

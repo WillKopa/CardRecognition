@@ -1,6 +1,8 @@
 package com.WillKopa.CardIdentifier.service;
 
 import com.WillKopa.CardIdentifier.exception.CardNotFoundException;
+import com.WillKopa.CardIdentifier.exception.UserAlreadyExistsException;
+import com.WillKopa.CardIdentifier.exception.UserNotFoundException;
 import com.WillKopa.CardIdentifier.model.Card;
 import com.WillKopa.CardIdentifier.dto.request.CardCollectionRequest;
 import com.WillKopa.CardIdentifier.model.User;
@@ -10,6 +12,7 @@ import com.WillKopa.CardIdentifier.repo.UserRepo;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,26 +34,45 @@ public class UserService {
     CardRepo cardRepo;
 
     /**
-     * Retrieves an existing user or creates a new one from JWT token information.
+     * Retrieves an existing user from JWT token information.
      * <p>
-     * Looks up a user by email from the JWT token. If the user doesn't exist,
-     * creates a new user with the email and name from the token.
+     * Looks up a user by email from the JWT token.
      * </p>
      *
      * @param jwt the JWT token containing user information
-     * @return the existing or newly created user
+     * @return the existing user
      */
-    @Transactional
-    public User getOrCreateUser(Jwt jwt) {
+    public User getUser(Jwt jwt) throws UserNotFoundException {
         String email = jwt.getClaimAsString("email");
         String userName = jwt.getClaimAsString("name");
 
-        return userRepo.findByEmail(email).orElseGet(() -> userRepo.save(
-                User.builder()
-                        .email(email)
-                        .userName(userName)
-                        .build()
-        ));
+        return userRepo.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User with email " + email + " not found"));
+    }
+    /**
+     * Creates a new user.
+     * <p>
+     * Uses information from the JWT token to create a new user.
+     * If the user already exists, throws a UserAlreadyExistsException.
+     * </p>
+     *
+     * @param jwt the JWT token containing user information
+     * @return the newly created user
+     * @throws UserAlreadyExistsException if the user already exists
+     */
+    @Transactional
+    public User createUser(Jwt jwt) throws UserAlreadyExistsException{
+
+        String email = jwt.getClaimAsString("email");
+        String userName = jwt.getClaimAsString("name");
+
+        if (userRepo.findByEmail(email).isPresent()) {
+            throw new UserAlreadyExistsException();
+        }
+
+        return userRepo.save(User.builder()
+                .email(email)
+                .userName(userName)
+                .build());
     }
 
     /**
@@ -142,5 +164,10 @@ public class UserService {
                 );
 
         return user;
+    }
+
+    @Transactional
+    public void deleteUser(String email) {
+        userRepo.deleteByEmail(email);
     }
 }

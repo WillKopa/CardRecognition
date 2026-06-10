@@ -1,5 +1,6 @@
 package com.WillKopa.CardIdentifier.filter;
 
+import com.WillKopa.CardIdentifier.exception.UserNotFoundException;
 import com.WillKopa.CardIdentifier.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -49,7 +50,10 @@ public class UserSyncFilter extends OncePerRequestFilter {
 
         if (auth instanceof JwtAuthenticationToken jwtAuth) {
              Jwt jwt = jwtAuth.getToken();
-             userService.getOrCreateUser(jwt);
+             try {
+                 userService.getUser(jwt);
+             } catch (UserNotFoundException _) {
+             }
         }
 
         filterChain.doFilter(request, response);
