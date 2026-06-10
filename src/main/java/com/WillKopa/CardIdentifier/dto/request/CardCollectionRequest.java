@@ -1,5 +1,6 @@
 package com.WillKopa.CardIdentifier.dto.request;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
@@ -12,6 +13,7 @@ import lombok.Data;
  */
 @Data
 @Builder
+@AllArgsConstructor
 public class CardCollectionRequest {
     /** The ID of the card to add or remove */
     private Integer cardId;

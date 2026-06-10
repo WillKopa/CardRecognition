@@ -11,10 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * REST controller for managing user card collections.
@@ -39,6 +36,7 @@ public class UserController {
      */
     @PostMapping("/addCard")
     public ResponseEntity<UserResponse> addCard(@RequestBody CardCollectionRequest addRequest, @AuthenticationPrincipal Jwt jwt) throws CardNotFoundException {
+        log.info("Adding card {} with value {} to collection", addRequest.getCardId(), addRequest.getMarketValue());
         User user = userService.addCard(addRequest, jwt.getClaimAsString("email"));
         UserResponse response = UserConverter.toResponse(user);
         return ResponseEntity.ok(response);
@@ -55,6 +53,23 @@ public class UserController {
     @PostMapping("/removeCard")
     public ResponseEntity<UserResponse> removeCard(@RequestBody CardCollectionRequest removeRequest, @AuthenticationPrincipal Jwt jwt) throws CardNotFoundException {
         User user = userService.removeCard(removeRequest, jwt.getClaimAsString("email"));
+        UserResponse response = UserConverter.toResponse(user);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Retrieves the user information for the authenticated user.
+     * <p>
+     * If the user does not exist, creates a new user with the email and name
+     * from the JWT token.
+     * </p>
+     *
+     * @param jwt the JWT token containing authentication information
+     * @return ResponseEntity containing the user response
+     */
+    @GetMapping("/getUserInfo")
+    public ResponseEntity<UserResponse> getUserInfo(@AuthenticationPrincipal Jwt jwt) {
+        User user = userService.getOrCreateUser(jwt);
         UserResponse response = UserConverter.toResponse(user);
         return ResponseEntity.ok(response);
     }
