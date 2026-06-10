@@ -26,8 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class CardService {
     private CardRepo cardRepo;
     private final OcrService ocrService;
-    private final TCGDexService TCGDexService;
-    private final CardLoaderService cardLoaderService;
+    private final TCGDexService tcgDexService;
     private final CardConverter cardConverter;
 
     /**
@@ -51,14 +50,14 @@ public class CardService {
 
         if (card.getCardSet() == null) {
             log.info("Updating card: {}, ID: {}", card.getName(), card.getId());
-            cardLoaderService.updateCard(card);
+            tcgDexService.updateCard(card);
         }
 
         System.out.println("Name: " + card.getName() +
                 "\nNumber: " + card.getCardNumber() +
                 "\nPrinted total: " + card.getCardSet() +
                 "\nExternal Id: " + card.getExternalDbId());
-        TCGDexService.getCardPriceAndImageURL(card);
+        tcgDexService.getCardPriceAndImageURL(card);
 
         return card;
     }

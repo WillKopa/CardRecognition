@@ -1,6 +1,7 @@
 package com.WillKopa.CardIdentifier.service;
 
 import com.WillKopa.CardIdentifier.dto.response.CardSearchResult;
+import com.WillKopa.CardIdentifier.repo.CardRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.tcgdex.sdk.Extension;
@@ -24,6 +25,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class TCGDexService {
+    private final CardRepo cardRepo;
     private final TCGdex tcGdex = new TCGdex("en");
 
     /**
@@ -72,6 +74,29 @@ public class TCGDexService {
                 .map(PricingTcgPlayer::getReverseHolofoil)
                 .map(PricingTcgPlayerVariant::getMarketPrice)
                 .orElse(null)
+        );
+    }
+
+    /**
+     * Updates a card's set information from the TCGDex API.
+     * <p>
+     * Fetches detailed card information including set name, set ID, and official
+     * printed total, then updates the card in the database.
+     * </p>
+     *
+     * @param result the card search result containing the external database ID
+     */
+    public void updateCard(CardSearchResult result) {
+        Optional.ofNullable(tcGdex.fetchCard(result.getExternalDbId())).ifPresent(card -> {
+                    com.WillKopa.CardIdentifier.model.Card updatedCard = new com.WillKopa.CardIdentifier.model.Card();
+                    updatedCard.setId(result.getId());
+                    updatedCard.setCardSet(card.getSet().getName());
+                    updatedCard.setCardSetId(card.getSet().getId());
+                    updatedCard.setSetOfficialPrintedTotal(card.getSet().getCardCount().getOfficial());
+                    cardRepo.updateCard(updatedCard);
+
+                    result.setCardSet(updatedCard.getCardSet());
+                }
         );
     }
 }

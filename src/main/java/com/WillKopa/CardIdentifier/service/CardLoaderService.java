@@ -26,29 +26,6 @@ public class CardLoaderService {
     private final TCGdex tcGdex = new TCGdex("en");
 
     /**
-     * Updates a card's set information from the TCGDex API.
-     * <p>
-     * Fetches detailed card information including set name, set ID, and official
-     * printed total, then updates the card in the database.
-     * </p>
-     *
-     * @param result the card search result containing the external database ID
-     */
-    public void updateCard(CardSearchResult result) {
-        Optional.ofNullable(tcGdex.fetchCard(result.getExternalDbId())).ifPresent(card -> {
-                    Card updatedCard = new Card();
-                    updatedCard.setId(result.getId());
-                    updatedCard.setCardSet(card.getSet().getName());
-                    updatedCard.setCardSetId(card.getSet().getId());
-                    updatedCard.setSetOfficialPrintedTotal(card.getSet().getCardCount().getOfficial());
-                    cardRepo.updateCard(updatedCard);
-
-                    result.setCardSet(updatedCard.getCardSet());
-                }
-        );
-    }
-
-    /**
      * Loads all Pokémon cards from the TCGDex API into the database.
      * <p>
      * Fetches all available Pokémon cards from the TCGDex API and saves them
