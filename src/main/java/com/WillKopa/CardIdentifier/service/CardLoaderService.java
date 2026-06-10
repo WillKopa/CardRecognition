@@ -17,6 +17,7 @@ import java.util.Optional;
  * Provides methods to fetch card information from the external TCGDex API
  * and update the local database with set information.
  * </p>
+ * Only to be used when setting up the database.
  */
 @Slf4j
 @Service
