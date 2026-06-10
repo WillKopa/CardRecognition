@@ -16,6 +16,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
+/**
+ * Service for managing user accounts and card collections.
+ * <p>
+ * Provides methods for user creation, adding cards to collections,
+ * removing cards from collections, and calculating collection values.
+ * </p>
+ */
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -23,6 +30,16 @@ public class UserService {
     UserRepo userRepo;
     CardRepo cardRepo;
 
+    /**
+     * Retrieves an existing user or creates a new one from JWT token information.
+     * <p>
+     * Looks up a user by email from the JWT token. If the user doesn't exist,
+     * creates a new user with the email and name from the token.
+     * </p>
+     *
+     * @param jwt the JWT token containing user information
+     * @return the existing or newly created user
+     */
     @Transactional
     public User getOrCreateUser(Jwt jwt) {
         String email = jwt.getClaimAsString("email");
@@ -36,6 +53,19 @@ public class UserService {
         ));
     }
 
+    /**
+     * Adds a card to the user's collection.
+     * <p>
+     * If the card already exists in the user's collection, increments the quantity.
+     * Otherwise, adds a new card with quantity 1. Updates the collection value
+     * with the card's market value.
+     * </p>
+     *
+     * @param addRequest the request containing card ID and market value
+     * @param email the user's email address
+     * @return the updated user with the new card added
+     * @throws CardNotFoundException if the card with the given ID doesn't exist
+     */
     @Transactional
     public User addCard(CardCollectionRequest addRequest, String email) throws CardNotFoundException {
         User user = userRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found")); // This should never be triggered
@@ -61,6 +91,18 @@ public class UserService {
         }
     }
 
+    /**
+     * Overloaded method to add a card to the user's collection.
+     * <p>
+     * Convenience method that creates a CardCollectionRequest from the provided
+     * parameters and delegates to the main addCard method.
+     * </p>
+     *
+     * @param id the card ID
+     * @param marketPrice the market price of the card
+     * @param email the user's email address
+     * @return the updated user with the new card added
+     */
     @Transactional
     public User addCard(Integer id, Float marketPrice, String email) {
         CardCollectionRequest request = CardCollectionRequest.builder()
@@ -70,6 +112,18 @@ public class UserService {
         return addCard(request, email);
     }
 
+    /**
+     * Removes a card from the user's collection.
+     * <p>
+     * Decrements the card quantity if more than one copy exists.
+     * Removes the card entirely if only one copy exists.
+     * Updates the collection value by subtracting the card's market value.
+     * </p>
+     *
+     * @param removeRequest the request containing card ID and market value
+     * @param email the user's email address
+     * @return the updated user with the card removed
+     */
     @Transactional
     public User removeCard(CardCollectionRequest removeRequest, String email) {
         User user = userRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));

@@ -11,6 +11,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+/**
+ * Service for loading and updating card data from the TCGDex API.
+ * <p>
+ * Provides methods to fetch card information from the external TCGDex API
+ * and update the local database with set information.
+ * </p>
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -18,6 +25,15 @@ public class CardLoaderService {
     private final CardRepo cardRepo;
     private final TCGdex tcGdex = new TCGdex("en");
 
+    /**
+     * Updates a card's set information from the TCGDex API.
+     * <p>
+     * Fetches detailed card information including set name, set ID, and official
+     * printed total, then updates the card in the database.
+     * </p>
+     *
+     * @param result the card search result containing the external database ID
+     */
     public void updateCard(CardSearchResult result) {
         Optional.ofNullable(tcGdex.fetchCard(result.getExternalDbId())).ifPresent(card -> {
                     Card updatedCard = new Card();
@@ -32,6 +48,14 @@ public class CardLoaderService {
         );
     }
 
+    /**
+     * Loads all Pokémon cards from the TCGDex API into the database.
+     * <p>
+     * Fetches all available Pokémon cards from the TCGDex API and saves them
+     * to the database with basic information. Set details are loaded separately
+     * when needed via the updateCard method.
+     * </p>
+     */
     public void loadPokemon() {
         final String POKEMON = "Pokemon TCG";
         Optional.ofNullable(tcGdex.fetchCards())

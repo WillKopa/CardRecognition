@@ -12,6 +12,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 
+/**
+ * Service for card identification and management.
+ * <p>
+ * Provides methods for identifying Pokémon cards from images using OCR,
+ * fetching card details from the database, and retrieving pricing information
+ * from external APIs.
+ * </p>
+ */
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -22,6 +30,18 @@ public class CardService {
     private final CardLoaderService cardLoaderService;
     private final CardConverter cardConverter;
 
+    /**
+     * Identifies a Pokémon card from an uploaded image file.
+     * <p>
+     * This method performs OCR on the image to extract card details, searches the database
+     * for matching cards, updates card information if necessary, and retrieves additional
+     * data such as price and image URL from external sources.
+     *
+     * @param imageFile the cropped and rotated image file containing the Pokémon card to identify
+     * @return CardSearchResult containing the identified card's details including price and image URL
+     * @throws InvalidImageException if the uploaded image is invalid or cannot be processed
+     * @throws NoOcrResultException if OCR fails to extract card information from the image
+     */
     public CardSearchResult identifyCard(MultipartFile imageFile) throws InvalidImageException, NoOcrResultException {
         OCRResult result = ocrService.performPokemonOcr(imageFile);
         log.info("OCR Response {}", result);

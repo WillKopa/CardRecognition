@@ -8,8 +8,23 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+/**
+ * Repository interface for Card entities.
+ * <p>
+ * Provides custom query methods for card operations including
+ * updating card information and searching cards by name and number.
+ * </p>
+ */
 @Repository
 public interface CardRepo extends JpaRepository<Card, Integer> {
+    /**
+     * Updates card information in the database.
+     * <p>
+     * Updates the card set, set ID, and official printed total for a given card ID.
+     * </p>
+     *
+     * @param updatedCard the card entity containing updated information
+     */
     @Modifying
     @Transactional
     @Query("""
@@ -21,6 +36,17 @@ public interface CardRepo extends JpaRepository<Card, Integer> {
     """)
     void updateCard(@Param("updatedCard") Card updatedCard);
 
+    /**
+     * Finds a card by name and card number.
+     * <p>
+     * Performs a case-insensitive search for cards matching the given name pattern
+     * and exact card number.
+     * </p>
+     *
+     * @param name the card name pattern (supports SQL LIKE wildcards)
+     * @param cardNumber the exact card number
+     * @return the matching card, or null if not found
+     */
     @Query(value = """
         SELECT c FROM Card c
         WHERE c.name LIKE :name AND c.cardNumber = :cardNumber

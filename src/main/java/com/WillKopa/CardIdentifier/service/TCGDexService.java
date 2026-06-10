@@ -13,16 +13,39 @@ import net.tcgdex.sdk.models.subs.PricingTcgPlayerVariant;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 
+/**
+ * Service for interacting with the TCGDex API.
+ * <p>
+ * Provides methods to fetch card details and pricing information
+ * from the TCGDex external API.
+ * </p>
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class TCGDexService {
     private final TCGdex tcGdex = new TCGdex("en");
 
+    /**
+     * Fetches a card from the TCGDex API by its ID.
+     *
+     * @param cardId the external database ID of the card
+     * @return the card details from TCGDex, or null if not found
+     */
     public net.tcgdex.sdk.models.Card getCard(String cardId) {
         return tcGdex.fetchCard(cardId);
     }
 
+    /**
+     * Retrieves pricing information and image URL for a card from TCGDex.
+     * <p>
+     * Fetches the card details and extracts market prices for different
+     * card variants (normal, holo foil, reverse holo foil) and the high-quality
+     * image URL.
+     * </p>
+     *
+     * @param card the card search result to update with pricing and image information
+     */
     public void getCardPriceAndImageURL(CardSearchResult card) {
         Optional<Card> responseOptional = Optional.ofNullable(getCard(card.getExternalDbId()));
         Optional<PricingTcgPlayer> tcgPlayerOptional = responseOptional

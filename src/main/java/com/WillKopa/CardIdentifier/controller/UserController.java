@@ -16,6 +16,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * REST controller for managing user card collections.
+ * <p>
+ * Provides endpoints for adding and removing cards from a user's collection.
+ * All operations are authenticated using JWT tokens.
+ */
 @Slf4j
 @AllArgsConstructor
 @RestController
@@ -23,6 +29,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     private UserService userService;
 
+    /**
+     * Adds a card to the authenticated user's collection.
+     *
+     * @param addRequest the request containing card details to add
+     * @param jwt the JWT token containing authentication information
+     * @return ResponseEntity containing the updated user response
+     * @throws CardNotFoundException if the specified card cannot be found
+     */
     @PostMapping("/addCard")
     public ResponseEntity<UserResponse> addCard(@RequestBody CardCollectionRequest addRequest, @AuthenticationPrincipal Jwt jwt) throws CardNotFoundException {
         User user = userService.addCard(addRequest, jwt.getClaimAsString("email"));
@@ -30,6 +44,14 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Removes a card from the authenticated user's collection.
+     *
+     * @param removeRequest the request containing card details to remove
+     * @param jwt the JWT token containing authentication information
+     * @return ResponseEntity containing the updated user response
+     * @throws CardNotFoundException if the specified card cannot be found
+     */
     @PostMapping("/removeCard")
     public ResponseEntity<UserResponse> removeCard(@RequestBody CardCollectionRequest removeRequest, @AuthenticationPrincipal Jwt jwt) throws CardNotFoundException {
         User user = userService.removeCard(removeRequest, jwt.getClaimAsString("email"));

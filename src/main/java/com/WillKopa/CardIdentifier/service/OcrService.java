@@ -18,6 +18,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
+/**
+ * Service for performing OCR (Optical Character Recognition) on card images.
+ * <p>
+ * Sends image files to an external OCR service to extract card information
+ * such as name and card number from the image.
+ * </p>
+ */
 @Slf4j
 @Service
 public class OcrService {
@@ -25,6 +32,18 @@ public class OcrService {
     @Value("${OCR_URL:http://localhost:5000/ocr}")
     private String ocrURL;
 
+    /**
+     * Performs OCR on a Pokémon card image file.
+     * <p>
+     * Sends the image file to the external OCR service and returns
+     * the extracted card information including name and card number.
+     * </p>
+     *
+     * @param file the image file to process
+     * @return OCRResult containing the extracted card information
+     * @throws InvalidImageException if the image file cannot be read
+     * @throws NoOcrResultException if the OCR service returns no result
+     */
     public OCRResult performPokemonOcr(MultipartFile file) throws InvalidImageException, NoOcrResultException {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         try {

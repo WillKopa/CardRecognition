@@ -11,6 +11,13 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * Security configuration for the Card Identifier application.
+ * <p>
+ * Configures Spring Security with OAuth2 JWT authentication and custom filter chains.
+ * Public endpoints are accessible without authentication, while other endpoints require JWT tokens.
+ * </p>
+ */
 @Configuration
 @EnableWebSecurity
 @AllArgsConstructor
@@ -18,6 +25,17 @@ public class SecurityConfig {
 
     private UserSyncFilter userSyncFilter;
 
+    /**
+     * Configures the security filter chain for HTTP requests.
+     * <p>
+     * Disables CSRF protection, configures authorization rules for public and authenticated endpoints,
+     * sets up OAuth2 JWT resource server, and adds a custom user synchronization filter.
+     * </p>
+     *
+     * @param http the HttpSecurity configuration object
+     * @return the configured SecurityFilterChain
+     * @throws Exception if configuration fails
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) {
         http.csrf(AbstractHttpConfigurer::disable);
