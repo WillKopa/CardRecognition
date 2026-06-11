@@ -3,6 +3,8 @@ package com.WillKopa.CardIdentifier.controller;
 import com.WillKopa.CardIdentifier.exception.InvalidImageException;
 import com.WillKopa.CardIdentifier.exception.NoOcrResultException;
 import com.WillKopa.CardIdentifier.dto.response.CardSearchResult;
+import com.WillKopa.CardIdentifier.model.CardCondition;
+import com.WillKopa.CardIdentifier.model.CardVariation;
 import com.WillKopa.CardIdentifier.model.User;
 import com.WillKopa.CardIdentifier.service.CardService;
 import com.WillKopa.CardIdentifier.service.UserService;
@@ -73,11 +75,14 @@ public class CardController {
             value = "/identifyAndAddToCollection",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
-    public ResponseEntity<User> identifyAndAddToCollection(@RequestParam MultipartFile imageFile, @AuthenticationPrincipal Jwt jwt) throws NoOcrResultException, InvalidImageException {
+    public ResponseEntity<User> identifyAndAddToCollection(@RequestParam MultipartFile imageFile,
+                                                           @RequestParam CardCondition cardCondition,
+                                                           @RequestParam CardVariation cardVariation,
+                                                           @AuthenticationPrincipal Jwt jwt) throws NoOcrResultException, InvalidImageException {
         log.info("Received request");
         CardSearchResult result = cardService.identifyCard(imageFile);
         log.info("Scanned\nName: {}\nSet: {}\nNumber: {}", result.getName(), result.getCardSet(), result.getCardNumber());
-        User user = userService.addCard(result.getId(), result.getMarketPriceNormal(), jwt.getClaimAsString("email"));
+        User user = userService.addCard(result.getId(), result.getMarketPriceNormal(), cardCondition, cardVariation, jwt.getClaimAsString("email"));
         return ResponseEntity.ok(user);
     }
 

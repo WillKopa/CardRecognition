@@ -3,10 +3,8 @@ package com.WillKopa.CardIdentifier.service;
 import com.WillKopa.CardIdentifier.exception.CardNotFoundException;
 import com.WillKopa.CardIdentifier.exception.UserAlreadyExistsException;
 import com.WillKopa.CardIdentifier.exception.UserNotFoundException;
-import com.WillKopa.CardIdentifier.model.Card;
+import com.WillKopa.CardIdentifier.model.*;
 import com.WillKopa.CardIdentifier.dto.request.CardCollectionRequest;
-import com.WillKopa.CardIdentifier.model.User;
-import com.WillKopa.CardIdentifier.model.UserCard;
 import com.WillKopa.CardIdentifier.repo.CardRepo;
 import com.WillKopa.CardIdentifier.repo.UserRepo;
 import jakarta.persistence.EntityNotFoundException;
@@ -131,10 +129,12 @@ public class UserService {
      * @return the updated user with the new card added
      */
     @Transactional
-    public User addCard(Integer id, Float marketPrice, String email) {
+    public User addCard(Integer id, Float marketPrice, CardCondition cardCondition, CardVariation cardVariation, String email) {
         CardCollectionRequest request = CardCollectionRequest.builder()
                 .cardId(id)
                 .marketValue(marketPrice)
+                .cardCondition(cardCondition)
+                .cardVariation(cardVariation)
                 .build();
         return addCard(request, email);
     }
@@ -155,7 +155,10 @@ public class UserService {
     public User removeCard(CardCollectionRequest removeRequest, String email) {
         User user = userRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
         user.getCardList().stream()
-                .filter(userCard -> userCard.getCard().getId().equals(removeRequest.getCardId()))
+                .filter(userCard -> userCard.getCard().getId().equals(removeRequest.getCardId())
+                        && userCard.getCardCondition().equals(removeRequest.getCardCondition())
+                        && userCard.getCardVariation().equals(removeRequest.getCardVariation())
+                )
                 .findFirst()
                 .ifPresent(
                         userCard -> {
@@ -167,7 +170,6 @@ public class UserService {
                             }
                         }
                 );
-
         return user;
     }
 
