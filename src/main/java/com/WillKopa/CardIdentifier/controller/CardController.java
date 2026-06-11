@@ -85,6 +85,8 @@ public class CardController {
         CardSearchResult result = cardService.identifyCard(imageFile);
         log.info("Scanned\nName: {}\nSet: {}\nNumber: {}", result.getName(), result.getCardSet(), result.getCardNumber());
 
+
+        // TODO This should probably be done in the service layer, but I don't feel like overloading the method again just for this
         Float price = switch (cardVariation) {
             case CardVariation.HOLOGRAPHIC -> result.getMarketPriceHolo();
             case CardVariation.REVERSE_HOLOGRAPHIC -> result.getMarketPriceReverseHolo();

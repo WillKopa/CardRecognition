@@ -6,10 +6,7 @@ import com.WillKopa.CardIdentifier.model.OCRResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -71,8 +68,10 @@ public class OcrService {
                 OCRResult.class
         );
 
-        if (response.getBody() != null) {
+        if (response.getStatusCode() == HttpStatus.OK) {
             return response.getBody();
+        } else if (response.getStatusCode().value() == 422) {
+            throw new InvalidImageException("Text in image cannot be recognized");
         }
 
         throw new NoOcrResultException("No result when attempting OCR on image");

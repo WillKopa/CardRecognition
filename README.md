@@ -24,3 +24,4 @@ Pokemon cards are about 2.5 inches wide and 3.5 inches long
 * Let the user mass import or remove cards.
 * Add a sync option that scans through the users cards and updates their total collection value.
   * Will need to add a field that tells us what the card type is so the correct price can be parsed.
+* Improve identify method to possibly identify card variation. Might be best as a front end task since a static image can be hard to tell if it is holo or normal.
