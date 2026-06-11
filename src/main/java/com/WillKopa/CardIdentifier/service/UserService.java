@@ -94,7 +94,10 @@ public class UserService {
         try {
             user.setCollectionValue(user.getCollectionValue().add(new BigDecimal(addRequest.getMarketValue().toString())));
             user.getCardList().stream()
-                    .filter(userCard -> userCard.getCard().getId().equals(addRequest.getCardId()))
+                    .filter(userCard -> userCard.getCard().getId().equals(addRequest.getCardId())
+                            && userCard.getCardCondition().equals(addRequest.getCardCondition())
+                            && userCard.getCardVariation().equals(addRequest.getCardVariation())
+                    )
                     .findFirst()
                     .ifPresentOrElse(
                             userCard -> userCard.setQuantity(userCard.getQuantity() + 1),
@@ -104,6 +107,8 @@ public class UserService {
                                     .user(user)
                                     .card(card)
                                     .quantity(1)
+                                    .cardCondition(addRequest.getCardCondition())
+                                    .cardVariation(addRequest.getCardVariation())
                                     .build());
                             }
                     );

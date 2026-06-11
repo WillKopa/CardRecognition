@@ -49,7 +49,7 @@ public interface CardRepo extends JpaRepository<Card, Integer> {
      */
     @Query(value = """
         SELECT c FROM Card c
-        WHERE c.name LIKE :name AND c.cardNumber = :cardNumber
+        WHERE c.name LIKE :name AND c.cardNumber = :cardNumber AND c.setOfficialPrintedTotal = :setOfficialPrintedTotal
         """)
-    Card getCardsByNameAndNumber(@Param("name") String name, @Param("cardNumber") String cardNumber);
+    Card getCardsByNameAndNumberAndSetPrintedTotal(@Param("name") String name, @Param("cardNumber") String cardNumber, @Param("setOfficialPrintedTotal") Integer setOfficialPrintedTotal);
 }

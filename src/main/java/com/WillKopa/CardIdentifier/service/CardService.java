@@ -44,7 +44,13 @@ public class CardService {
     public CardSearchResult identifyCard(MultipartFile imageFile) throws InvalidImageException, NoOcrResultException {
         OCRResult result = ocrService.performPokemonOcr(imageFile);
         log.info("OCR Response {}", result);
-        CardSearchResult card = cardConverter.toCardSearchResult(cardRepo.getCardsByNameAndNumber("%" + result.getName() + "%", result.getCardNumber()));
+        CardSearchResult card = cardConverter.toCardSearchResult(
+                cardRepo.getCardsByNameAndNumberAndSetPrintedTotal(
+                        "%" + result.getName() + "%",
+                        result.getCardNumber(),
+                        Integer.parseInt(result.getSetPrintedTotal())
+                )
+        );
 
         log.info("Retrieved card from DB: {}", card);
 

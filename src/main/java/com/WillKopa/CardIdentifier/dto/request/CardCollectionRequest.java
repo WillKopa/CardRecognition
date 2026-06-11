@@ -1,5 +1,7 @@
 package com.WillKopa.CardIdentifier.dto.request;
 
+import com.WillKopa.CardIdentifier.model.CardCondition;
+import com.WillKopa.CardIdentifier.model.CardVariation;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,4 +21,8 @@ public class CardCollectionRequest {
     private Integer cardId;
     /** The market value of the card for collection value calculation */
     private Float marketValue;
+    /** The condition of the card */
+    private CardCondition cardCondition;
+    /** The variation of the card */
+    private CardVariation cardVariation;
 }
