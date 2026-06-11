@@ -66,6 +66,8 @@ public class CardController {
      * </p>
      *
      * @param imageFile the image file containing the cropped and rotated Pokémon card to identify
+     * @param cardCondition the condition of the card
+     * @param cardVariation the variation of the card
      * @param jwt the JWT token containing authentication information
      * @return ResponseEntity containing the updated user with the new card added
      * @throws NoOcrResultException if OCR fails to extract card information
@@ -82,7 +84,14 @@ public class CardController {
         log.info("Received request");
         CardSearchResult result = cardService.identifyCard(imageFile);
         log.info("Scanned\nName: {}\nSet: {}\nNumber: {}", result.getName(), result.getCardSet(), result.getCardNumber());
-        User user = userService.addCard(result.getId(), result.getMarketPriceNormal(), cardCondition, cardVariation, jwt.getClaimAsString("email"));
+
+        Float price = switch (cardVariation) {
+            case CardVariation.HOLOGRAPHIC -> result.getMarketPriceHolo();
+            case CardVariation.REVERSE_HOLOGRAPHIC -> result.getMarketPriceReverseHolo();
+            default -> result.getMarketPriceNormal();
+        };
+
+        User user = userService.addCard(result.getId(), price, cardCondition, cardVariation, jwt.getClaimAsString("email"));
         return ResponseEntity.ok(user);
     }
 
