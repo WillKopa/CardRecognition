@@ -40,7 +40,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) {
         http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/public/**", "/swagger-ui/**",  "/v3/api-docs/**").permitAll() // Public endpoints
+                        .requestMatchers("/public/**", "/swagger-ui/**",  "/v3/api-docs/**", "/v3/api-docs.yaml").permitAll() // Public endpoints
                         .anyRequest().authenticated()               // Everything else requires login
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))

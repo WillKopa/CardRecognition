@@ -16,6 +16,322 @@ from the properties.
 
 Pokemon cards are about 2.5 inches wide and 3.5 inches long
 
+
+## API
+```yaml
+openapi: 3.1.0
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+  - url: http://localhost:8090
+    description: Generated server url
+security:
+  - Bearer Authentication: []
+paths:
+  /api/removeCard:
+    post:
+      tags:
+        - user-controller
+      operationId: removeCard
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CardCollectionRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+  /api/public/identify:
+    post:
+      tags:
+        - card-controller
+      operationId: identifyCard
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                imageFile:
+                  type: string
+                  format: binary
+              required:
+                - imageFile
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CardSearchResult"
+  /api/public/createUser:
+    post:
+      tags:
+        - user-controller
+      operationId: createUser
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+  /api/identifyAndAddToCollection:
+    post:
+      tags:
+        - card-controller
+      operationId: identifyAndAddToCollection
+      parameters:
+        - name: cardCondition
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - NEAR_MINT
+              - LIGHTLY_PLAYED
+              - MODERATELY_PLAYED
+              - HEAVILY_PLAYED
+              - DAMAGED
+        - name: cardVariation
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - NORMAL
+              - HOLOGRAPHIC
+              - REVERSE_HOLOGRAPHIC
+              - SPECIAL
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                imageFile:
+                  type: string
+                  format: binary
+              required:
+                - imageFile
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/User"
+  /api/addCard:
+    post:
+      tags:
+        - user-controller
+      operationId: addCard
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CardCollectionRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+  /api/hello:
+    get:
+      tags:
+        - card-controller
+      operationId: helloWorld
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+  /api/getUserInfo:
+    get:
+      tags:
+        - user-controller
+      operationId: getUserInfo
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+  /api/deleteUser:
+    delete:
+      tags:
+        - user-controller
+      operationId: deleteUser
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+components:
+  schemas:
+    CardCollectionRequest:
+      type: object
+      properties:
+        cardId:
+          type: integer
+          format: int32
+        marketValue:
+          type: number
+          format: float
+        cardCondition:
+          type: string
+          enum:
+            - NEAR_MINT
+            - LIGHTLY_PLAYED
+            - MODERATELY_PLAYED
+            - HEAVILY_PLAYED
+            - DAMAGED
+        cardVariation:
+          type: string
+          enum:
+            - NORMAL
+            - HOLOGRAPHIC
+            - REVERSE_HOLOGRAPHIC
+            - SPECIAL
+    CardResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        count:
+          type: integer
+          format: int32
+        name:
+          type: string
+        externalDbId:
+          type: string
+        cardSet:
+          type: string
+        cardSetId:
+          type: string
+    UserResponse:
+      type: object
+      properties:
+        userName:
+          type: string
+        collectionValue:
+          type: number
+        cards:
+          type: array
+          items:
+            $ref: "#/components/schemas/CardResponse"
+    CardSearchResult:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        cardNumber:
+          type: string
+        externalDbId:
+          type: string
+        cardSet:
+          type: string
+        marketPriceNormal:
+          type: number
+          format: float
+        marketPriceHolo:
+          type: number
+          format: float
+        marketPriceReverseHolo:
+          type: number
+          format: float
+        imageURL:
+          type: string
+    Card:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        externalDbId:
+          type: string
+        game:
+          type: string
+        name:
+          type: string
+        cardSet:
+          type: string
+        cardSetId:
+          type: string
+        cardNumber:
+          type: string
+        setOfficialPrintedTotal:
+          type: integer
+          format: int32
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        email:
+          type: string
+        userName:
+          type: string
+        collectionValue:
+          type: number
+        cardList:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserCard"
+    UserCard:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        user:
+          $ref: "#/components/schemas/User"
+        card:
+          $ref: "#/components/schemas/Card"
+        quantity:
+          type: integer
+          format: int32
+        cardCondition:
+          type: string
+          enum:
+            - NEAR_MINT
+            - LIGHTLY_PLAYED
+            - MODERATELY_PLAYED
+            - HEAVILY_PLAYED
+            - DAMAGED
+        cardVariation:
+          type: string
+          enum:
+            - NORMAL
+            - HOLOGRAPHIC
+            - REVERSE_HOLOGRAPHIC
+            - SPECIAL
+  securitySchemes:
+    Bearer Authentication:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+```
+
 # TODO
 * User balance cannot go negative
 * Update microservice to better identify cards
