@@ -27,7 +27,7 @@ servers:
   - url: http://localhost:8090
     description: Generated server url
 security:
-  - Bearer Authentication: []
+  - BearerAuthentication: []
 paths:
   /api/removeCard:
     post:
@@ -326,7 +326,7 @@ components:
             - REVERSE_HOLOGRAPHIC
             - SPECIAL
   securitySchemes:
-    Bearer Authentication:
+    BearerAuthentication:
       type: http
       scheme: bearer
       bearerFormat: JWT

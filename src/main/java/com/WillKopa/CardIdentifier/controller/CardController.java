@@ -110,6 +110,12 @@ public class CardController {
     //Adding to test connection from phone
     @GetMapping("/hello")
     public ResponseEntity<String> helloWorld() {
-        return new ResponseEntity<>("Hello World", HttpStatus.OK);
+        return new ResponseEntity<>("Hello World Private", HttpStatus.OK);
+    }
+
+    //Adding to test connection from phone
+    @GetMapping("/public/hello")
+    public ResponseEntity<String> helloWorldPublic() {
+        return new ResponseEntity<>("Hello World Public", HttpStatus.OK);
     }
 }

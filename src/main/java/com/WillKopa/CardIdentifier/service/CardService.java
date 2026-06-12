@@ -4,6 +4,7 @@ import com.WillKopa.CardIdentifier.converter.CardConverter;
 import com.WillKopa.CardIdentifier.exception.InvalidImageException;
 import com.WillKopa.CardIdentifier.exception.NoOcrResultException;
 import com.WillKopa.CardIdentifier.dto.response.CardSearchResult;
+import com.WillKopa.CardIdentifier.model.Card;
 import com.WillKopa.CardIdentifier.model.OCRResult;
 import com.WillKopa.CardIdentifier.repo.CardRepo;
 import lombok.AllArgsConstructor;
@@ -44,13 +45,22 @@ public class CardService {
     public CardSearchResult identifyCard(MultipartFile imageFile) throws InvalidImageException, NoOcrResultException {
         OCRResult result = ocrService.performPokemonOcr(imageFile);
         log.info("OCR Response {}", result);
-        CardSearchResult card = cardConverter.toCardSearchResult(
-                cardRepo.getCardsByNameAndNumberAndSetPrintedTotal(
-                        "%" + result.getName() + "%",
-                        result.getCardNumber(),
-                        Integer.parseInt(result.getSetPrintedTotal())
-                )
+        Card dbResult = cardRepo.getCardsByNameAndNumberAndSetPrintedTotal(
+                "%" + result.getName() + "%",
+                result.getCardNumber(),
+                Integer.parseInt(result.getSetPrintedTotal())
         );
+
+        if (dbResult == null) {
+            log.info("Card not found with parsed set number, trying again");
+            dbResult = cardRepo.getCardsByNameAndNumberAndSetPrintedTotal(
+                    "%" + result.getName() + "%",
+                    result.getCardNumber(),
+                    -1
+            );
+        }
+
+        CardSearchResult card = cardConverter.toCardSearchResult(dbResult);
 
         log.info("Retrieved card from DB: {}", card);
 
