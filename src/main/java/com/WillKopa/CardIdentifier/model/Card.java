@@ -37,4 +37,9 @@ public class Card {
     private String cardNumber;
     /** The official printed total for the set */
     private int setOfficialPrintedTotal;
+    /** url to low res image **/
+    private String imageUrlLow;
+    /** url to high res image **/
+    private String imageUrlHigh;
+
 }

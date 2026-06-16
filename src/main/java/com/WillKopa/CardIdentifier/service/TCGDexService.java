@@ -54,8 +54,11 @@ public class TCGDexService {
                 .map(net.tcgdex.sdk.models.Card::getPricing)
                 .map(Pricing::getTcgplayer);
 
-        card.setImageURL(responseOptional.map(
+        card.setImageUrlHigh(responseOptional.map(
                 r -> r.getImageUrl(Quality.HIGH, Extension.WEBP)).orElse(null)
+        );
+        card.setImageUrlLow(responseOptional.map(
+                r -> r.getImageUrl(Quality.LOW, Extension.WEBP)).orElse(null)
         );
 
         card.setMarketPriceNormal(tcgPlayerOptional
@@ -93,6 +96,8 @@ public class TCGDexService {
                     updatedCard.setCardSet(card.getSet().getName());
                     updatedCard.setCardSetId(card.getSet().getId());
                     updatedCard.setSetOfficialPrintedTotal(card.getSet().getCardCount().getOfficial());
+                    updatedCard.setImageUrlLow(card.getImageUrl(Quality.LOW, Extension.WEBP));
+                    updatedCard.setImageUrlHigh(card.getImageUrl(Quality.HIGH, Extension.WEBP));
                     cardRepo.updateCard(updatedCard);
 
                     result.setCardSet(updatedCard.getCardSet());

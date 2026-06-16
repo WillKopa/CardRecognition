@@ -19,5 +19,9 @@ public record CardResponse(
         /** The set name of the card */
         String cardSet,
         /** The set ID of the card */
-        String cardSetId
+        String cardSetId,
+        /** url to low res image **/
+        String image_url_low,
+        /** url to high res image **/
+        String image_url_high
 ) {}

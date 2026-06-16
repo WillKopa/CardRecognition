@@ -33,7 +33,8 @@ public class CardConverter {
                 null,
                 null,
                 null,
-                null
+                card.getImageUrlLow(),
+                card.getImageUrlHigh() 
         );
     }
 }

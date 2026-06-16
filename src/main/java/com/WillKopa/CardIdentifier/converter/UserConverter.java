@@ -33,7 +33,9 @@ public class UserConverter {
                                 userCard.getCard().getName(),
                                 userCard.getCard().getExternalDbId(),
                                 userCard.getCard().getCardSet(),
-                                userCard.getCard().getCardSetId()
+                                userCard.getCard().getCardSetId(),
+                                userCard.getCard().getImageUrlLow(),
+                                userCard.getCard().getImageUrlHigh()
                         )).toList();
         return new UserResponse(
                 user.getUserName(),

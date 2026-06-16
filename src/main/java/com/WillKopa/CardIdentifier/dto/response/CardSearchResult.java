@@ -30,6 +30,8 @@ public class CardSearchResult {
     private Float marketPriceHolo;
     /** The market price for reverse holo foil variant */
     private Float marketPriceReverseHolo;
-    /** The URL to the card image */
-    private String imageURL;
+    /** The URL to the low res card image */
+    private String imageUrlLow;
+    /** The URL to the high res card image */
+    private String imageUrlHigh;
 }
