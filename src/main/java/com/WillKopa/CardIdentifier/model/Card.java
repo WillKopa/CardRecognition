@@ -34,9 +34,13 @@ public class Card {
     private String cardSet;
     /** The set ID this card belongs to */
     private String cardSetId;
-    /** The card number within its set */
+    /** The card number within its set
+     * It might make sense to store this as an int, but the external database often ensures it is a 3 digit number i.e 001
+     * */
     private String cardNumber;
-    /** The official printed total for the set */
+    /** The official printed total for the set
+     * The total number of cards does not seem to share the same issue the card number does so it can be stored as an int
+     * */
     private int setOfficialPrintedTotal;
     /** url to low res image **/
     private String imageUrlLow;

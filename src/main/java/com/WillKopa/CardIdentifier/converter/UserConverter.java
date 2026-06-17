@@ -33,6 +33,8 @@ public class UserConverter {
                                 userCard.getCard().getId(),
                                 userCard.getQuantity(),
                                 userCard.getCard().getName(),
+                                userCard.getCard().getCardNumber(),
+                                userCard.getCard().getSetOfficialPrintedTotal(),
                                 userCard.getCard().getExternalDbId(),
                                 userCard.getCard().getCardSet(),
                                 userCard.getCard().getCardSetId(),

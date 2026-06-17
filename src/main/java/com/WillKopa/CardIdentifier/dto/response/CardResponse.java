@@ -17,6 +17,10 @@ public record CardResponse(
         Integer count,
         /** The name of the card */
         String name,
+        /** The card number of the card */
+        String cardNumber,
+        /** The official printed total for the set */
+        int setOfficialPrintedTotal,
         /** The external database ID of the card */
         String externalDbId,
         /** The set name of the card */
