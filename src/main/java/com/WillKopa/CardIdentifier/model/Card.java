@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -41,5 +42,10 @@ public class Card {
     private String imageUrlLow;
     /** url to high res image **/
     private String imageUrlHigh;
-
+    /** Normal variation market price **/
+    private Float marketPriceNormal;
+    /** Holo variation market price **/
+    private Float marketPriceHolo;
+    /** Reverse Holo variation market price **/
+    private Float marketPriceReverseHolo;
 }

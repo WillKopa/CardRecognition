@@ -1,5 +1,8 @@
 package com.WillKopa.CardIdentifier.dto.response;
 
+import com.WillKopa.CardIdentifier.model.CardCondition;
+import com.WillKopa.CardIdentifier.model.CardVariation;
+
 /**
  * Response DTO for card information in a user's collection.
  * <p>
@@ -23,5 +26,11 @@ public record CardResponse(
         /** url to low res image **/
         String image_url_low,
         /** url to high res image **/
-        String image_url_high
+        String image_url_high,
+        /** The condition of the card **/
+        CardVariation variation,
+        /** The variation of the card **/
+        CardCondition condition,
+        /** The market price of the card **/
+        Float marketPrice
 ) {}

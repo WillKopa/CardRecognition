@@ -12,6 +12,8 @@ import net.tcgdex.sdk.models.Pricing;
 import net.tcgdex.sdk.models.subs.PricingTcgPlayer;
 import net.tcgdex.sdk.models.subs.PricingTcgPlayerVariant;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 import java.util.Optional;
 
 /**
@@ -90,6 +92,7 @@ public class TCGDexService {
      * @param result the card search result containing the external database ID
      */
     public void updateCard(CardSearchResult result) {
+        getCardPriceAndImageURL(result);
         Optional.ofNullable(tcGdex.fetchCard(result.getExternalDbId())).ifPresent(card -> {
                     com.WillKopa.CardIdentifier.model.Card updatedCard = new com.WillKopa.CardIdentifier.model.Card();
                     updatedCard.setId(result.getId());
@@ -98,8 +101,10 @@ public class TCGDexService {
                     updatedCard.setSetOfficialPrintedTotal(card.getSet().getCardCount().getOfficial());
                     updatedCard.setImageUrlLow(card.getImageUrl(Quality.LOW, Extension.WEBP));
                     updatedCard.setImageUrlHigh(card.getImageUrl(Quality.HIGH, Extension.WEBP));
+                    updatedCard.setMarketPriceNormal(result.getMarketPriceNormal());
+                    updatedCard.setMarketPriceHolo(result.getMarketPriceHolo());
+                    updatedCard.setMarketPriceReverseHolo(result.getMarketPriceReverseHolo());
                     cardRepo.updateCard(updatedCard);
-
                     result.setCardSet(updatedCard.getCardSet());
                 }
         );

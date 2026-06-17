@@ -30,9 +30,9 @@ public class CardConverter {
                 card.getCardNumber(),
                 card.getExternalDbId(),
                 card.getCardSet(),
-                null,
-                null,
-                null,
+                card.getMarketPriceNormal(),
+                card.getMarketPriceHolo(),
+                card.getMarketPriceReverseHolo(),
                 card.getImageUrlLow(),
                 card.getImageUrlHigh() 
         );

@@ -31,7 +31,12 @@ public interface CardRepo extends JpaRepository<Card, Integer> {
     UPDATE Card c
     SET c.cardSet = :#{#updatedCard.cardSet},
         c.cardSetId = :#{#updatedCard.cardSetId},
-        c.setOfficialPrintedTotal = :#{#updatedCard.setOfficialPrintedTotal}
+        c.setOfficialPrintedTotal = :#{#updatedCard.setOfficialPrintedTotal},
+        c.imageUrlHigh = :#{#updatedCard.imageUrlHigh},
+        c.imageUrlLow = :#{#updatedCard.imageUrlLow},
+        c.marketPriceNormal = :#{#updatedCard.marketPriceNormal},
+        c.marketPriceHolo = :#{#updatedCard.marketPriceHolo},
+        c.marketPriceReverseHolo = :#{#updatedCard.marketPriceReverseHolo}
     WHERE c.id = :#{#updatedCard.id}
     """)
     void updateCard(@Param("updatedCard") Card updatedCard);

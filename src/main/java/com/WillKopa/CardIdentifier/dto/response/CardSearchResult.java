@@ -3,6 +3,8 @@ package com.WillKopa.CardIdentifier.dto.response;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 
 /**
  * Response DTO for card search results from OCR identification.
