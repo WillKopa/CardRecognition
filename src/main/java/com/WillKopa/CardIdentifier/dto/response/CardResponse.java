@@ -2,6 +2,7 @@ package com.WillKopa.CardIdentifier.dto.response;
 
 import com.WillKopa.CardIdentifier.model.CardCondition;
 import com.WillKopa.CardIdentifier.model.CardVariation;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * Response DTO for card information in a user's collection.
@@ -27,14 +28,17 @@ public record CardResponse(
         String cardSet,
         /** The set ID of the card */
         String cardSetId,
-        /** url to low res image **/
+        /** url to low-res image **/
         String image_url_low,
-        /** url to high res image **/
+        /** url to high-res image **/
         String image_url_high,
-        /** The condition of the card **/
-        CardVariation variation,
-        /** The variation of the card **/
-        CardCondition condition,
+
+        /** The cardCondition of the card **/
+        @Schema(implementation = CardVariation.class)
+        CardVariation cardVariation,
+        /** The cardVariation of the card **/
+        @Schema(implementation = CardCondition.class)
+        CardCondition cardCondition,
         /** The market price of the card **/
         Float marketPrice
 ) {}

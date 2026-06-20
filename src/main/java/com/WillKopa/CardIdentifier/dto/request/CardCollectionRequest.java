@@ -21,8 +21,8 @@ public class CardCollectionRequest {
     private Integer cardId;
     /** The market value of the card for collection value calculation */
     private Float marketValue;
-    /** The condition of the card */
+    /** The cardCondition of the card */
     private CardCondition cardCondition;
-    /** The variation of the card */
+    /** The cardVariation of the card */
     private CardVariation cardVariation;
 }

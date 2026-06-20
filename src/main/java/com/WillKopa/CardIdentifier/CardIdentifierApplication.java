@@ -13,6 +13,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication
 public class CardIdentifierApplication {
+	static {
+		io.swagger.v3.core.jackson.ModelResolver.enumsAsRef = true;
+	}
 
 	/**
 	 * Main entry point for the Spring Boot application.

@@ -40,9 +40,9 @@ public class UserCard {
     /** The quantity of this card owned by the user */
     private Integer quantity;
 
-    /** The condition of this card owned by the user */
+    /** The cardCondition of this card owned by the user */
     private CardCondition cardCondition;
 
-    /** The variation of this card owned by the user */
+    /** The cardVariation of this card owned by the user */
     private CardVariation cardVariation;
 }

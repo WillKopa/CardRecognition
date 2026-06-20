@@ -66,8 +66,8 @@ public class CardController {
      * </p>
      *
      * @param imageFile the image file containing the cropped and rotated Pokémon card to identify
-     * @param cardCondition the condition of the card
-     * @param cardVariation the variation of the card
+     * @param cardCondition the cardCondition of the card
+     * @param cardVariation the cardVariation of the card
      * @param jwt the JWT token containing authentication information
      * @return ResponseEntity containing the updated user with the new card added
      * @throws NoOcrResultException if OCR fails to extract card information
