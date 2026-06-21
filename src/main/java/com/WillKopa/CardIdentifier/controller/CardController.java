@@ -18,6 +18,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 /**
  * REST controller for card identification and collection management.
  * <p>
@@ -51,10 +53,10 @@ public class CardController {
             value = "/public/identify",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
-    public ResponseEntity<CardSearchResult> identifyCard(@RequestParam MultipartFile imageFile) throws NoOcrResultException, InvalidImageException {
+    public ResponseEntity<List<CardSearchResult>> identifyCard(@RequestParam MultipartFile imageFile) throws NoOcrResultException, InvalidImageException {
         log.info("Received request");
-        CardSearchResult result = cardService.identifyCard(imageFile);
-        log.info("Scanned\nName: {}\nSet: {}\nNumber: {}", result.getName(), result.getCardSet(), result.getCardNumber());
+        List<CardSearchResult> result = cardService.identifyCard(imageFile);
+        log.info("Scanned card. Returning response with %d results", result.size());
         return ResponseEntity.ok(result);
     }
 
@@ -82,18 +84,20 @@ public class CardController {
                                                            @RequestParam CardVariation cardVariation,
                                                            @AuthenticationPrincipal Jwt jwt) throws NoOcrResultException, InvalidImageException {
         log.info("Received request");
-        CardSearchResult result = cardService.identifyCard(imageFile);
-        log.info("Scanned\nName: {}\nSet: {}\nNumber: {}", result.getName(), result.getCardSet(), result.getCardNumber());
+        List<CardSearchResult> resultList = cardService.identifyCard(imageFile);
 
+        User user = null;
 
         // TODO This should probably be done in the service layer, but I don't feel like overloading the method again just for this
-        Float price = switch (cardVariation) {
-            case CardVariation.HOLOGRAPHIC -> result.getMarketPriceHolo();
-            case CardVariation.REVERSE_HOLOGRAPHIC -> result.getMarketPriceReverseHolo();
-            default -> result.getMarketPriceNormal();
-        };
+        for (CardSearchResult result : resultList) {
+            Float price = switch (cardVariation) {
+                case CardVariation.HOLOGRAPHIC -> result.getMarketPriceHolo();
+                case CardVariation.REVERSE_HOLOGRAPHIC -> result.getMarketPriceReverseHolo();
+                default -> result.getMarketPriceNormal();
+            };
+            user = userService.addCard(result.getId(), price, cardCondition, cardVariation, jwt.getClaimAsString("email"));
+        }
 
-        User user = userService.addCard(result.getId(), price, cardCondition, cardVariation, jwt.getClaimAsString("email"));
         return ResponseEntity.ok(user);
     }
 

@@ -12,6 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * Service for card identification and management.
@@ -42,10 +45,10 @@ public class CardService {
      * @throws InvalidImageException if the uploaded image is invalid or cannot be processed
      * @throws NoOcrResultException if OCR fails to extract card information from the image
      */
-    public CardSearchResult identifyCard(MultipartFile imageFile) throws InvalidImageException, NoOcrResultException {
+    public List<CardSearchResult> identifyCard(MultipartFile imageFile) throws InvalidImageException, NoOcrResultException {
         OCRResult result = ocrService.performPokemonOcr(imageFile);
         log.info("OCR Response {}", result);
-        Card dbResult = cardRepo.getCardsByNameAndNumberAndSetPrintedTotal(
+        List<Card> dbResult = cardRepo.getCardsByNameAndNumberAndSetPrintedTotal(
                 "%" + result.getName() + "%",
                 result.getCardNumber(),
                 Integer.parseInt(result.getSetPrintedTotal())
@@ -60,21 +63,27 @@ public class CardService {
             );
         }
 
-        CardSearchResult card = cardConverter.toCardSearchResult(dbResult);
+        List<CardSearchResult> resultList = new ArrayList<>();
 
-        log.info("Retrieved card from DB: {}", card);
-
-        if (card.getCardSet() == null) {
-            log.info("Updating card: {}, ID: {}", card.getName(), card.getId());
-            tcgDexService.updateCard(card);
+        for (Card card : dbResult) {
+            CardSearchResult cardSearchResult = cardConverter.toCardSearchResult(card);
+            resultList.add(cardSearchResult);
         }
 
-        System.out.println("Name: " + card.getName() +
-                "\nNumber: " + card.getCardNumber() +
-                "\nPrinted total: " + card.getCardSet() +
-                "\nExternal Id: " + card.getExternalDbId());
-        tcgDexService.getCardPriceAndImageURL(card);
+        log.info("Retrieved {} cards from DB", resultList.size());
 
-        return card;
+        for (CardSearchResult card : resultList) {
+            if (card.getCardSet() == null) {
+                log.info("Updating card: {}, ID: {}", card.getName(), card.getId());
+                tcgDexService.updateCard(card);
+            }
+            System.out.println("Name: " + card.getName() +
+                    "\nNumber: " + card.getCardNumber() +
+                    "\nPrinted total: " + card.getCardSet() +
+                    "\nExternal Id: " + card.getExternalDbId());
+            tcgDexService.getCardPriceAndImageURL(card);
+        }
+
+        return resultList;
     }
 }
