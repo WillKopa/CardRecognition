@@ -54,7 +54,7 @@ public class CardService {
                 Integer.parseInt(result.getSetPrintedTotal())
         );
 
-        if (dbResult == null) {
+        if (dbResult.isEmpty()) {
             log.info("Card not found with parsed set number, trying again");
             dbResult = cardRepo.getCardsByNameAndNumberAndSetPrintedTotal(
                     "%" + result.getName() + "%",
@@ -79,7 +79,7 @@ public class CardService {
             }
             System.out.println("Name: " + card.getName() +
                     "\nNumber: " + card.getCardNumber() +
-                    "\nPrinted total: " + card.getCardSet() +
+                    "\nCard Set: " + card.getCardSet() +
                     "\nExternal Id: " + card.getExternalDbId());
             tcgDexService.getCardPriceAndImageURL(card);
         }
