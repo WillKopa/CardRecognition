@@ -55,11 +55,17 @@ public class CardService {
         );
 
         if (dbResult.isEmpty()) {
-            log.info("Card not found with parsed set number, trying again");
-            dbResult = cardRepo.getCardsByNameAndNumberAndSetPrintedTotal(
+            log.info("Card not found with parsed set number, trying again with set number removed");
+            dbResult = cardRepo.getCardsByNameAndNumber(
                     "%" + result.getName() + "%",
-                    result.getCardNumber(),
-                    -1
+                    result.getCardNumber()
+            );
+        }
+
+        if (dbResult.isEmpty()) {
+            log.info("Card not found with parsed card number, trying again with card number removed");
+            dbResult = cardRepo.getCardsByName(
+                    "%" + result.getName() + "%"
             );
         }
 

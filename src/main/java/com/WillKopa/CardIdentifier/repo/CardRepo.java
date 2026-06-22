@@ -59,4 +59,16 @@ public interface CardRepo extends JpaRepository<Card, Integer> {
         WHERE c.name LIKE :name AND c.cardNumber = :cardNumber AND c.setOfficialPrintedTotal = :setOfficialPrintedTotal
         """)
     List<Card> getCardsByNameAndNumberAndSetPrintedTotal(@Param("name") String name, @Param("cardNumber") String cardNumber, @Param("setOfficialPrintedTotal") Integer setOfficialPrintedTotal);
+
+    @Query(value = """
+        SELECT c FROM Card c
+        WHERE c.name LIKE :name AND c.cardNumber = :cardNumber
+        """)
+    List<Card> getCardsByNameAndNumber(@Param("name") String name, @Param("cardNumber") String cardNumber);
+
+    @Query(value = """
+        SELECT c FROM Card c
+        WHERE c.name LIKE :name
+        """)
+    List<Card> getCardsByName(@Param("name") String name);
 }
