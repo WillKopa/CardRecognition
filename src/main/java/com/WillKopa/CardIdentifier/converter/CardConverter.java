@@ -28,6 +28,7 @@ public class CardConverter {
                 card.getId(),
                 card.getName(),
                 card.getCardNumber(),
+                card.getSetOfficialPrintedTotal(),
                 card.getExternalDbId(),
                 card.getCardSet(),
                 card.getMarketPriceNormal(),

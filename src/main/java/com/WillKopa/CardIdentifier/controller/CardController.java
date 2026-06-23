@@ -54,9 +54,9 @@ public class CardController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public ResponseEntity<List<CardSearchResult>> identifyCard(@RequestParam MultipartFile imageFile) throws NoOcrResultException, InvalidImageException {
-        log.info("Received request");
+        log.info("Received request to identify card");
         List<CardSearchResult> result = cardService.identifyCard(imageFile);
-        log.info("Scanned card. Returning response with %d results", result.size());
+        log.info("Scanned card. Returning response with {} results", result.size());
         return ResponseEntity.ok(result);
     }
 
@@ -83,7 +83,7 @@ public class CardController {
                                                            @RequestParam CardCondition cardCondition,
                                                            @RequestParam CardVariation cardVariation,
                                                            @AuthenticationPrincipal Jwt jwt) throws NoOcrResultException, InvalidImageException {
-        log.info("Received request");
+        log.info("Received request to identify card and add to collection");
         List<CardSearchResult> resultList = cardService.identifyCard(imageFile);
 
         User user = null;

@@ -22,6 +22,8 @@ public class CardSearchResult {
     private String name;
     /** The card number within its set */
     private String cardNumber;
+    /** The "official" number of cards printed in the set */
+    private Integer setPrintedTotal;
     /** The external database ID of the card */
     private String externalDbId;
     /** The set name of the card */
