@@ -52,7 +52,7 @@ public class UserSyncFilter extends OncePerRequestFilter {
              Jwt jwt = jwtAuth.getToken();
              try {
                  userService.getUser(jwt);
-             } catch (UserNotFoundException _) {
+             } catch (UserNotFoundException e) {
              }
         }
 
