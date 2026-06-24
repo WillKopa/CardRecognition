@@ -28,6 +28,22 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CardControllerTest {
+    private static final Integer ID = 1;
+    private static final String EMAIL = "test@example.com";
+    private static final String USERNAME = "testuser";
+    private static final String PASSWORD = "testpassword";
+    private static final String CARD_NAME = "Pikachu";
+    private static final String CARD_NUMBER = "001";
+    private static final Integer SET_PRINTED_TOTAL = 102;
+    private static final String EXTERNAL_DB_ID = "base1-1";
+    private static final String CARD_SET = "Base Set";
+    private static final Float MARKET_PRICE_NORMAL = 10.5f;
+    private static final Float MARKET_PRICE_HOLO = 25.0f;
+    private static final Float MARKET_PRICE_REVERSE_HOLO = 15.75f;
+    private static final String CARD_CONDITION = "Near Mint";
+    private static final String CARD_VARIATION = "Base Set";
+    private static final String CARD_IMAGE_LOW = "low.jpg";
+    private static final String CARD_IMAGE_HIGH = "high.jpg";
 
     @Mock
     private CardService cardService;
@@ -50,23 +66,23 @@ class CardControllerTest {
     @BeforeEach
     void setUp() {
         cardSearchResult = new CardSearchResult(
-            1,
-            "Pikachu",
-            "001",
-            102,
-            "base1-1",
-            "Base Set",
-            10.5f,
-            25.0f,
-            15.75f,
-            "low.jpg",
-            "high.jpg"
+            ID,
+            CARD_NAME,
+            CARD_NUMBER,
+            SET_PRINTED_TOTAL,
+            EXTERNAL_DB_ID,
+            CARD_SET,
+            MARKET_PRICE_NORMAL,
+            MARKET_PRICE_HOLO,
+            MARKET_PRICE_REVERSE_HOLO,
+            CARD_IMAGE_LOW,
+            CARD_IMAGE_HIGH
         );
 
         user = User.builder()
-            .id(1)
-            .email("test@example.com")
-            .userName("testuser")
+            .id(ID)
+            .email(EMAIL)
+            .userName(USERNAME)
             .build();
     }
 
@@ -79,8 +95,8 @@ class CardControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().size());
-        assertEquals("Pikachu", response.getBody().get(0).getName());
+        assertEquals(ID, response.getBody().size());
+        assertEquals(CARD_NAME, response.getBody().getFirst().getName());
 
         verify(cardService).identifyCard(imageFile);
     }
@@ -120,8 +136,8 @@ class CardControllerTest {
     void testIdentifyAndAddToCollection_Success() throws NoOcrResultException, InvalidImageException {
         List<CardSearchResult> results = List.of(cardSearchResult);
         when(cardService.identifyCard(imageFile)).thenReturn(results);
-        when(jwt.getClaimAsString("email")).thenReturn("test@example.com");
-        when(userService.addCard(eq(1), eq(10.5f), eq(CardCondition.NEAR_MINT), eq(CardVariation.NORMAL), eq("test@example.com")))
+        when(jwt.getClaimAsString("email")).thenReturn(EMAIL);
+        when(userService.addCard(eq(ID), eq(MARKET_PRICE_NORMAL), eq(CardCondition.NEAR_MINT), eq(CardVariation.NORMAL), eq(EMAIL)))
             .thenReturn(user);
 
         ResponseEntity<User> response = cardController.identifyAndAddToCollection(
@@ -133,18 +149,18 @@ class CardControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("test@example.com", response.getBody().getEmail());
+        assertEquals(EMAIL, response.getBody().getEmail());
 
         verify(cardService).identifyCard(imageFile);
-        verify(userService).addCard(eq(1), eq(10.5f), eq(CardCondition.NEAR_MINT), eq(CardVariation.NORMAL), eq("test@example.com"));
+        verify(userService).addCard(eq(ID), eq(MARKET_PRICE_NORMAL), eq(CardCondition.NEAR_MINT), eq(CardVariation.NORMAL), eq(EMAIL));
     }
 
     @Test
     void testIdentifyAndAddToCollection_Holographic() throws NoOcrResultException, InvalidImageException {
         List<CardSearchResult> results = List.of(cardSearchResult);
         when(cardService.identifyCard(imageFile)).thenReturn(results);
-        when(jwt.getClaimAsString("email")).thenReturn("test@example.com");
-        when(userService.addCard(eq(1), eq(25.0f), eq(CardCondition.NEAR_MINT), eq(CardVariation.HOLOGRAPHIC), eq("test@example.com")))
+        when(jwt.getClaimAsString("email")).thenReturn(EMAIL);
+        when(userService.addCard(eq(ID), eq(MARKET_PRICE_HOLO), eq(CardCondition.NEAR_MINT), eq(CardVariation.HOLOGRAPHIC), eq(EMAIL)))
             .thenReturn(user);
 
         ResponseEntity<User> response = cardController.identifyAndAddToCollection(
@@ -158,15 +174,15 @@ class CardControllerTest {
         assertNotNull(response.getBody());
 
         verify(cardService).identifyCard(imageFile);
-        verify(userService).addCard(eq(1), eq(25.0f), eq(CardCondition.NEAR_MINT), eq(CardVariation.HOLOGRAPHIC), eq("test@example.com"));
+        verify(userService).addCard(eq(ID), eq(MARKET_PRICE_HOLO), eq(CardCondition.NEAR_MINT), eq(CardVariation.HOLOGRAPHIC), eq(EMAIL));
     }
 
     @Test
     void testIdentifyAndAddToCollection_ReverseHolographic() throws NoOcrResultException, InvalidImageException {
         List<CardSearchResult> results = List.of(cardSearchResult);
         when(cardService.identifyCard(imageFile)).thenReturn(results);
-        when(jwt.getClaimAsString("email")).thenReturn("test@example.com");
-        when(userService.addCard(eq(1), eq(15.75f), eq(CardCondition.NEAR_MINT), eq(CardVariation.REVERSE_HOLOGRAPHIC), eq("test@example.com")))
+        when(jwt.getClaimAsString("email")).thenReturn(EMAIL);
+        when(userService.addCard(eq(ID), eq(MARKET_PRICE_REVERSE_HOLO), eq(CardCondition.NEAR_MINT), eq(CardVariation.REVERSE_HOLOGRAPHIC), eq(EMAIL)))
             .thenReturn(user);
 
         ResponseEntity<User> response = cardController.identifyAndAddToCollection(
@@ -180,7 +196,7 @@ class CardControllerTest {
         assertNotNull(response.getBody());
 
         verify(cardService).identifyCard(imageFile);
-        verify(userService).addCard(eq(1), eq(15.75f), eq(CardCondition.NEAR_MINT), eq(CardVariation.REVERSE_HOLOGRAPHIC), eq("test@example.com"));
+        verify(userService).addCard(eq(ID), eq(MARKET_PRICE_REVERSE_HOLO), eq(CardCondition.NEAR_MINT), eq(CardVariation.REVERSE_HOLOGRAPHIC), eq(EMAIL));
     }
 
     @Test
@@ -201,10 +217,10 @@ class CardControllerTest {
         List<CardSearchResult> results = List.of(cardSearchResult, result2);
 
         when(cardService.identifyCard(imageFile)).thenReturn(results);
-        when(jwt.getClaimAsString("email")).thenReturn("test@example.com");
-        when(userService.addCard(eq(1), eq(10.5f), eq(CardCondition.NEAR_MINT), eq(CardVariation.NORMAL), eq("test@example.com")))
+        when(jwt.getClaimAsString("email")).thenReturn(EMAIL);
+        when(userService.addCard(eq(ID), eq(MARKET_PRICE_NORMAL), eq(CardCondition.NEAR_MINT), eq(CardVariation.NORMAL), eq(EMAIL)))
             .thenReturn(user);
-        when(userService.addCard(eq(2), eq(100.0f), eq(CardCondition.NEAR_MINT), eq(CardVariation.NORMAL), eq("test@example.com")))
+        when(userService.addCard(eq(2), eq(100.0f), eq(CardCondition.NEAR_MINT), eq(CardVariation.NORMAL), eq(EMAIL)))
             .thenReturn(user);
 
         ResponseEntity<User> response = cardController.identifyAndAddToCollection(
@@ -218,7 +234,7 @@ class CardControllerTest {
         assertNotNull(response.getBody());
 
         verify(cardService).identifyCard(imageFile);
-        verify(userService, times(2)).addCard(anyInt(), anyFloat(), eq(CardCondition.NEAR_MINT), eq(CardVariation.NORMAL), eq("test@example.com"));
+        verify(userService, times(2)).addCard(anyInt(), anyFloat(), eq(CardCondition.NEAR_MINT), eq(CardVariation.NORMAL), eq(EMAIL));
     }
 
     @Test
