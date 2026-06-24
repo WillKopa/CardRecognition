@@ -16,7 +16,12 @@ from the properties.
 
 Pokemon cards are about 2.5 inches wide and 3.5 inches long
 
-# TODO
+### Used Cascade to generate tests
+* All unit tests need to be fixed and cleaned up
+  * Currently verified working 
+    - UserControllerTest
+
+0# TODO
 * User balance cannot go negative
 * Update microservice to better identify cards
   * Maybe completed, but needs testing with old cards.
