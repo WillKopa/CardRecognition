@@ -22,6 +22,7 @@ Pokemon cards are about 2.5 inches wide and 3.5 inches long
     - UserControllerTest
     - CardControllerTest
     - CardConverterTest
+    - UserConverterTest
 
 0# TODO
 * User balance cannot go negative

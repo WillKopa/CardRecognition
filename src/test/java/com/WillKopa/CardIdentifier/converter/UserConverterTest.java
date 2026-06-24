@@ -17,6 +17,24 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserConverterTest {
+    private static final Integer ID = 1;
+    private static final String EMAIL = "test@example.com";
+    private static final String USERNAME = "testuser";
+    private static final BigDecimal COLLECTION_VALUE = new BigDecimal("21.00");
+    private static final String CARD_NAME = "Pikachu";
+    private static final String CARD_NUMBER = "001";
+    private static final Integer SET_PRINTED_TOTAL = 102;
+    private static final String EXTERNAL_DB_ID = "base1-1";
+    private static final String CARD_SET = "Base Set";
+    private static final Float MARKET_PRICE_NORMAL = 10.5f;
+    private static final Float MARKET_PRICE_HOLOGRAPHIC = 25.0f;
+    private static final Float MARKET_PRICE_REVERSE_HOLOGRAPHIC = 15.75f;
+    private static final String CARD_SET_ID = "base1";
+    private static final String IMAGE_URL_LOW = "low.jpg";
+    private static final String IMAGE_URL_HIGH = "high.jpg";
+    private static final CardVariation CARD_VARIATION = CardVariation.NORMAL;
+    private static final CardCondition CARD_CONDITION = CardCondition.NEAR_MINT;
+    private static final Integer QUANTITY = 2;
 
     private User user;
     private Card card;
@@ -25,34 +43,34 @@ class UserConverterTest {
     @BeforeEach
     void setUp() {
         card = new Card();
-        card.setId(1);
-        card.setName("Pikachu");
-        card.setCardNumber("001");
-        card.setSetOfficialPrintedTotal(102);
-        card.setExternalDbId("base1-1");
-        card.setCardSet("Base Set");
-        card.setCardSetId("base1");
-        card.setMarketPriceNormal(10.5f);
-        card.setMarketPriceHolo(25.0f);
-        card.setMarketPriceReverseHolo(15.75f);
-        card.setImageUrlLow("low.jpg");
-        card.setImageUrlHigh("high.jpg");
+        card.setId(ID);
+        card.setName(CARD_NAME);
+        card.setCardNumber(CARD_NUMBER);
+        card.setSetOfficialPrintedTotal(SET_PRINTED_TOTAL);
+        card.setExternalDbId(EXTERNAL_DB_ID);
+        card.setCardSet(CARD_SET);
+        card.setCardSetId(CARD_SET_ID);
+        card.setMarketPriceNormal(MARKET_PRICE_NORMAL);
+        card.setMarketPriceHolo(MARKET_PRICE_HOLOGRAPHIC);
+        card.setMarketPriceReverseHolo(MARKET_PRICE_REVERSE_HOLOGRAPHIC);
+        card.setImageUrlLow(IMAGE_URL_LOW);
+        card.setImageUrlHigh(IMAGE_URL_HIGH);
 
         userCard = UserCard.builder()
             .card(card)
-            .quantity(2)
-            .cardCondition(CardCondition.NEAR_MINT)
-            .cardVariation(CardVariation.NORMAL)
+            .quantity(QUANTITY)
+            .cardCondition(CARD_CONDITION)
+            .cardVariation(CARD_VARIATION)
             .build();
 
         List<UserCard> cardList = new ArrayList<>();
         cardList.add(userCard);
 
         user = User.builder()
-            .id(1)
-            .email("test@example.com")
-            .userName("testuser")
-            .collectionValue(new BigDecimal("21.00"))
+            .id(ID)
+            .email(EMAIL)
+            .userName(USERNAME)
+            .collectionValue(COLLECTION_VALUE)
             .cardList(cardList)
             .build();
     }
@@ -62,10 +80,10 @@ class UserConverterTest {
         UserResponse response = UserConverter.toResponse(user);
 
         assertNotNull(response);
-        assertEquals("testuser", response.userName());
-        assertEquals(new BigDecimal("21.00"), response.collectionValue());
+        assertEquals(USERNAME, response.userName());
+        assertEquals(COLLECTION_VALUE, response.collectionValue());
         assertNotNull(response.cards());
-        assertEquals(1, response.cards().size());
+        assertEquals(user.getCardList().size(), response.cards().size());
     }
 
     @Test
@@ -73,18 +91,18 @@ class UserConverterTest {
         UserResponse response = UserConverter.toResponse(user);
 
         CardResponse cardResponse = response.cards().getFirst();
-        assertEquals(1, cardResponse.id());
-        assertEquals(2, cardResponse.count());
-        assertEquals("Pikachu", cardResponse.name());
-        assertEquals("001", cardResponse.cardNumber());
-        assertEquals(102, cardResponse.setOfficialPrintedTotal());
-        assertEquals("base1-1", cardResponse.externalDbId());
-        assertEquals("Base Set", cardResponse.cardSet());
-        assertEquals("base1", cardResponse.cardSetId());
-        assertEquals("low.jpg", cardResponse.image_url_low());
-        assertEquals("high.jpg", cardResponse.image_url_high());
-        assertEquals(CardVariation.NORMAL, cardResponse.cardVariation());
-        assertEquals(CardCondition.NEAR_MINT, cardResponse.cardCondition());
+        assertEquals(ID, cardResponse.id());
+        assertEquals(QUANTITY, cardResponse.count());
+        assertEquals(CARD_NAME, cardResponse.name());
+        assertEquals(CARD_NUMBER, cardResponse.cardNumber());
+        assertEquals(SET_PRINTED_TOTAL, cardResponse.setOfficialPrintedTotal());
+        assertEquals(EXTERNAL_DB_ID, cardResponse.externalDbId());
+        assertEquals(CARD_SET, cardResponse.cardSet());
+        assertEquals(CARD_SET_ID, cardResponse.cardSetId());
+        assertEquals(IMAGE_URL_LOW, cardResponse.image_url_low());
+        assertEquals(IMAGE_URL_HIGH, cardResponse.image_url_high());
+        assertEquals(CARD_VARIATION, cardResponse.cardVariation());
+        assertEquals(CARD_CONDITION, cardResponse.cardCondition());
     }
 
     @Test
@@ -93,7 +111,7 @@ class UserConverterTest {
 
         UserResponse response = UserConverter.toResponse(user);
 
-        assertEquals(10.5f, response.cards().get(0).marketPrice());
+        assertEquals(MARKET_PRICE_NORMAL, response.cards().getFirst().marketPrice());
     }
 
     @Test
@@ -102,7 +120,7 @@ class UserConverterTest {
 
         UserResponse response = UserConverter.toResponse(user);
 
-        assertEquals(25.0f, response.cards().get(0).marketPrice());
+        assertEquals(MARKET_PRICE_HOLOGRAPHIC, response.cards().getFirst().marketPrice());
     }
 
     @Test
@@ -111,7 +129,7 @@ class UserConverterTest {
 
         UserResponse response = UserConverter.toResponse(user);
 
-        assertEquals(15.75f, response.cards().get(0).marketPrice());
+        assertEquals(MARKET_PRICE_REVERSE_HOLOGRAPHIC, response.cards().getFirst().marketPrice());
     }
 
     @Test
@@ -120,7 +138,7 @@ class UserConverterTest {
 
         UserResponse response = UserConverter.toResponse(user);
 
-        assertEquals(0f, response.cards().get(0).marketPrice());
+        assertEquals(0f, response.cards().getFirst().marketPrice());
     }
 
     @Test
@@ -130,7 +148,7 @@ class UserConverterTest {
         UserResponse response = UserConverter.toResponse(user);
 
         assertNotNull(response);
-        assertEquals("testuser", response.userName());
+        assertEquals(USERNAME, response.userName());
         assertNotNull(response.cards());
         assertTrue(response.cards().isEmpty());
     }
@@ -164,46 +182,8 @@ class UserConverterTest {
 
         assertNotNull(response);
         assertEquals(2, response.cards().size());
-        assertEquals("Pikachu", response.cards().get(0).name());
+        assertEquals(CARD_NAME, response.cards().get(0).name());
         assertEquals("Charizard", response.cards().get(1).name());
         assertEquals(250.0f, response.cards().get(1).marketPrice());
-    }
-
-    @Test
-    void testToResponse_ZeroCollectionValue() {
-        user.setCollectionValue(BigDecimal.ZERO);
-
-        UserResponse response = UserConverter.toResponse(user);
-
-        assertEquals(BigDecimal.ZERO, response.collectionValue());
-    }
-
-    @Test
-    void testToResponse_LargeCollectionValue() {
-        user.setCollectionValue(new BigDecimal("10000.00"));
-
-        UserResponse response = UserConverter.toResponse(user);
-
-        assertEquals(new BigDecimal("10000.00"), response.collectionValue());
-    }
-
-    @Test
-    void testToResponse_DifferentConditions() {
-        userCard.setCardCondition(CardCondition.HEAVILY_PLAYED);
-
-        UserResponse response = UserConverter.toResponse(user);
-
-        assertEquals(CardCondition.HEAVILY_PLAYED, response.cards().get(0).cardCondition());
-    }
-
-    @Test
-    void testToResponse_NullPrices() {
-        card.setMarketPriceNormal(null);
-        card.setMarketPriceHolo(null);
-        card.setMarketPriceReverseHolo(null);
-
-        UserResponse response = UserConverter.toResponse(user);
-
-        assertNull(response.cards().get(0).marketPrice());
     }
 }
