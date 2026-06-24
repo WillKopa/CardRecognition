@@ -31,7 +31,6 @@ class CardControllerTest {
     private static final Integer ID = 1;
     private static final String EMAIL = "test@example.com";
     private static final String USERNAME = "testuser";
-    private static final String PASSWORD = "testpassword";
     private static final String CARD_NAME = "Pikachu";
     private static final String CARD_NUMBER = "001";
     private static final Integer SET_PRINTED_TOTAL = 102;
@@ -40,8 +39,6 @@ class CardControllerTest {
     private static final Float MARKET_PRICE_NORMAL = 10.5f;
     private static final Float MARKET_PRICE_HOLO = 25.0f;
     private static final Float MARKET_PRICE_REVERSE_HOLO = 15.75f;
-    private static final String CARD_CONDITION = "Near Mint";
-    private static final String CARD_VARIATION = "Base Set";
     private static final String CARD_IMAGE_LOW = "low.jpg";
     private static final String CARD_IMAGE_HIGH = "high.jpg";
 

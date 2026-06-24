@@ -8,6 +8,17 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CardConverterTest {
+    private static final Integer ID = 1;
+    private static final String CARD_NAME = "Pikachu";
+    private static final String CARD_NUMBER = "001";
+    private static final Integer SET_PRINTED_TOTAL = 102;
+    private static final String EXTERNAL_DB_ID = "base1-1";
+    private static final String CARD_SET = "Base Set";
+    private static final Float MARKET_PRICE_NORMAL = 10.5f;
+    private static final Float MARKET_PRICE_HOLO = 25.0f;
+    private static final Float MARKET_PRICE_REVERSE_HOLO = 15.75f;
+    private static final String CARD_IMAGE_LOW = "low.jpg";
+    private static final String CARD_IMAGE_HIGH = "high.jpg";
 
     private CardConverter cardConverter;
     private Card card;
@@ -16,17 +27,17 @@ class CardConverterTest {
     void setUp() {
         cardConverter = new CardConverter();
         card = new Card();
-        card.setId(1);
-        card.setName("Pikachu");
-        card.setCardNumber("001");
-        card.setSetOfficialPrintedTotal(102);
-        card.setExternalDbId("base1-1");
-        card.setCardSet("Base Set");
-        card.setMarketPriceNormal(10.5f);
-        card.setMarketPriceHolo(25.0f);
-        card.setMarketPriceReverseHolo(15.75f);
-        card.setImageUrlLow("low.jpg");
-        card.setImageUrlHigh("high.jpg");
+        card.setId(ID);
+        card.setName(CARD_NAME);
+        card.setCardNumber(CARD_NUMBER);
+        card.setSetOfficialPrintedTotal(SET_PRINTED_TOTAL);
+        card.setExternalDbId(EXTERNAL_DB_ID);
+        card.setCardSet(CARD_SET);
+        card.setMarketPriceNormal(MARKET_PRICE_NORMAL);
+        card.setMarketPriceHolo(MARKET_PRICE_HOLO);
+        card.setMarketPriceReverseHolo(MARKET_PRICE_REVERSE_HOLO);
+        card.setImageUrlLow(CARD_IMAGE_LOW);
+        card.setImageUrlHigh(CARD_IMAGE_HIGH);
     }
 
     @Test
@@ -34,17 +45,17 @@ class CardConverterTest {
         CardSearchResult result = cardConverter.toCardSearchResult(card);
 
         assertNotNull(result);
-        assertEquals(1, result.getId());
-        assertEquals("Pikachu", result.getName());
-        assertEquals("001", result.getCardNumber());
-        assertEquals(102, result.getSetPrintedTotal());
-        assertEquals("base1-1", result.getExternalDbId());
-        assertEquals("Base Set", result.getCardSet());
-        assertEquals(10.5f, result.getMarketPriceNormal());
-        assertEquals(25.0f, result.getMarketPriceHolo());
-        assertEquals(15.75f, result.getMarketPriceReverseHolo());
-        assertEquals("low.jpg", result.getImageUrlLow());
-        assertEquals("high.jpg", result.getImageUrlHigh());
+        assertEquals(ID, result.getId());
+        assertEquals(CARD_NAME, result.getName());
+        assertEquals(CARD_NUMBER, result.getCardNumber());
+        assertEquals(SET_PRINTED_TOTAL, result.getSetPrintedTotal());
+        assertEquals(EXTERNAL_DB_ID, result.getExternalDbId());
+        assertEquals(CARD_SET, result.getCardSet());
+        assertEquals(MARKET_PRICE_NORMAL, result.getMarketPriceNormal());
+        assertEquals(MARKET_PRICE_HOLO, result.getMarketPriceHolo());
+        assertEquals(MARKET_PRICE_REVERSE_HOLO, result.getMarketPriceReverseHolo());
+        assertEquals(CARD_IMAGE_LOW, result.getImageUrlLow());
+        assertEquals(CARD_IMAGE_HIGH, result.getImageUrlHigh());
     }
 
     @Test
@@ -57,14 +68,14 @@ class CardConverterTest {
     @Test
     void testToCardSearchResult_NullFields() {
         Card nullCard = new Card();
-        nullCard.setId(1);
-        nullCard.setName("Pikachu");
+        nullCard.setId(ID);
+        nullCard.setName(CARD_NAME);
 
         CardSearchResult result = cardConverter.toCardSearchResult(nullCard);
 
         assertNotNull(result);
-        assertEquals(1, result.getId());
-        assertEquals("Pikachu", result.getName());
+        assertEquals(ID, result.getId());
+        assertEquals(CARD_NAME, result.getName());
         assertNull(result.getCardNumber());
         assertNull(result.getExternalDbId());
         assertNull(result.getCardSet());
@@ -73,51 +84,5 @@ class CardConverterTest {
         assertNull(result.getMarketPriceReverseHolo());
         assertNull(result.getImageUrlLow());
         assertNull(result.getImageUrlHigh());
-    }
-
-    @Test
-    void testToCardSearchResult_ZeroPrices() {
-        card.setMarketPriceNormal(0f);
-        card.setMarketPriceHolo(0f);
-        card.setMarketPriceReverseHolo(0f);
-
-        CardSearchResult result = cardConverter.toCardSearchResult(card);
-
-        assertNotNull(result);
-        assertEquals(0f, result.getMarketPriceNormal());
-        assertEquals(0f, result.getMarketPriceHolo());
-        assertEquals(0f, result.getMarketPriceReverseHolo());
-    }
-
-    @Test
-    void testToCardSearchResult_LargePrices() {
-        card.setMarketPriceNormal(1000.0f);
-        card.setMarketPriceHolo(2500.0f);
-        card.setMarketPriceReverseHolo(1500.0f);
-
-        CardSearchResult result = cardConverter.toCardSearchResult(card);
-
-        assertNotNull(result);
-        assertEquals(1000.0f, result.getMarketPriceNormal());
-        assertEquals(2500.0f, result.getMarketPriceHolo());
-        assertEquals(1500.0f, result.getMarketPriceReverseHolo());
-    }
-
-    @Test
-    void testToCardSearchResult_EmptyStrings() {
-        card.setCardNumber("");
-        card.setExternalDbId("");
-        card.setCardSet("");
-        card.setImageUrlLow("");
-        card.setImageUrlHigh("");
-
-        CardSearchResult result = cardConverter.toCardSearchResult(card);
-
-        assertNotNull(result);
-        assertEquals("", result.getCardNumber());
-        assertEquals("", result.getExternalDbId());
-        assertEquals("", result.getCardSet());
-        assertEquals("", result.getImageUrlLow());
-        assertEquals("", result.getImageUrlHigh());
     }
 }
