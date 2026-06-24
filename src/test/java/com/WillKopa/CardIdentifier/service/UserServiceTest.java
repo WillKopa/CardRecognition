@@ -32,6 +32,25 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
+    private static final int TEST_USER_ID = 1;
+    private static final int TEST_CARD_ID = 1;
+    private static final int NON_EXISTENT_CARD_ID = 999;
+    private static final int QUANTITY_ONE = 1;
+    private static final int QUANTITY_TWO = 2;
+    private static final float TEST_MARKET_PRICE_NORMAL = 10.5f;
+    private static final float TEST_MARKET_PRICE_HOLO = 25.0f;
+    private static final float TEST_MARKET_PRICE_REVERSE_HOLO = 15.75f;
+    private static final String INITIAL_COLLECTION_VALUE = "100.00";
+    private static final String COLLECTION_VALUE_AFTER_ADD = "110.50";
+    private static final String COLLECTION_VALUE_AFTER_REMOVE = "89.50";
+    private static final String TEST_EMAIL = "test@example.com";
+    private static final String TEST_USERNAME = "testuser";
+    private static final String NON_EXISTENT_EMAIL = "nonexistent@example.com";
+    private static final String TEST_CARD_NAME = "Pikachu";
+    private static final String JWT_EMAIL_CLAIM = "email";
+    private static final String JWT_NAME_CLAIM = "name";
+    private static final int FIRST_CARD_INDEX = 0;
+
     @Mock
     private UserRepo userRepo;
 
@@ -50,286 +69,289 @@ class UserServiceTest {
     @BeforeEach
     void setUp() {
         user = User.builder()
-            .id(1)
-            .email("test@example.com")
-            .userName("testuser")
-            .collectionValue(new BigDecimal("100.00"))
+            .id(TEST_USER_ID)
+            .email(TEST_EMAIL)
+            .userName(TEST_USERNAME)
+            .collectionValue(new BigDecimal(INITIAL_COLLECTION_VALUE))
             .cardList(new ArrayList<>())
             .build();
 
         card = new Card();
-        card.setId(1);
-        card.setName("Pikachu");
-        card.setMarketPriceNormal(10.5f);
-        card.setMarketPriceHolo(25.0f);
-        card.setMarketPriceReverseHolo(15.75f);
+        card.setId(TEST_CARD_ID);
+        card.setName(TEST_CARD_NAME);
+        card.setMarketPriceNormal(TEST_MARKET_PRICE_NORMAL);
+        card.setMarketPriceHolo(TEST_MARKET_PRICE_HOLO);
+        card.setMarketPriceReverseHolo(TEST_MARKET_PRICE_REVERSE_HOLO);
     }
 
     @Test
     void testGetUser_Success() {
-        when(jwt.getClaimAsString("email")).thenReturn("test@example.com");
-        when(jwt.getClaimAsString("name")).thenReturn("testuser");
-        when(userRepo.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+        when(jwt.getClaimAsString(JWT_EMAIL_CLAIM)).thenReturn(TEST_EMAIL);
+        when(jwt.getClaimAsString(JWT_NAME_CLAIM)).thenReturn(TEST_USERNAME);
+        when(userRepo.findByEmail(TEST_EMAIL)).thenReturn(Optional.of(user));
 
         User result = userService.getUser(jwt);
 
         assertNotNull(result);
-        assertEquals("test@example.com", result.getEmail());
-        assertEquals("testuser", result.getUserName());
+        assertEquals(TEST_EMAIL, result.getEmail());
+        assertEquals(TEST_USERNAME, result.getUserName());
         
-        verify(userRepo).findByEmail("test@example.com");
+        verify(userRepo).findByEmail(TEST_EMAIL);
     }
 
     @Test
     void testGetUser_UserNotFound() {
-        when(jwt.getClaimAsString("email")).thenReturn("nonexistent@example.com");
-        when(userRepo.findByEmail("nonexistent@example.com")).thenReturn(Optional.empty());
+        when(jwt.getClaimAsString(JWT_EMAIL_CLAIM)).thenReturn(NON_EXISTENT_EMAIL);
+        when(userRepo.findByEmail(NON_EXISTENT_EMAIL)).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> userService.getUser(jwt));
         
-        verify(userRepo).findByEmail("nonexistent@example.com");
+        verify(userRepo).findByEmail(NON_EXISTENT_EMAIL);
     }
 
     @Test
     void testCreateUser_Success() throws UserAlreadyExistsException {
-        when(jwt.getClaimAsString("email")).thenReturn("new@example.com");
-        when(jwt.getClaimAsString("name")).thenReturn("newuser");
-        when(userRepo.findByEmail("new@example.com")).thenReturn(Optional.empty());
+        when(jwt.getClaimAsString(JWT_EMAIL_CLAIM)).thenReturn(TEST_EMAIL);
+        when(jwt.getClaimAsString(JWT_NAME_CLAIM)).thenReturn(TEST_USERNAME);
+        when(userRepo.findByEmail(TEST_EMAIL)).thenReturn(Optional.empty());
         when(userRepo.save(any(User.class))).thenReturn(user);
 
         User result = userService.createUser(jwt);
 
         assertNotNull(result);
-        assertEquals("new@example.com", result.getEmail());
-        assertEquals("newuser", result.getUserName());
+        assertEquals(TEST_EMAIL, result.getEmail());
+        assertEquals(TEST_USERNAME, result.getUserName());
         
-        verify(userRepo).findByEmail("new@example.com");
+        verify(userRepo).findByEmail(TEST_EMAIL);
         verify(userRepo).save(any(User.class));
     }
 
     @Test
     void testCreateUser_UserAlreadyExists() {
-        when(jwt.getClaimAsString("email")).thenReturn("test@example.com");
-        when(userRepo.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+        when(jwt.getClaimAsString(JWT_EMAIL_CLAIM)).thenReturn(TEST_EMAIL);
+        when(userRepo.findByEmail(TEST_EMAIL)).thenReturn(Optional.of(user));
 
         assertThrows(UserAlreadyExistsException.class, () -> userService.createUser(jwt));
         
-        verify(userRepo).findByEmail("test@example.com");
+        verify(userRepo).findByEmail(TEST_EMAIL);
         verify(userRepo, never()).save(any(User.class));
     }
 
     @Test
     void testAddCard_NewCard() throws CardNotFoundException {
         CardCollectionRequest request = CardCollectionRequest.builder()
-            .cardId(1)
-            .marketValue(10.5f)
+            .cardId(TEST_CARD_ID)
+            .marketValue(TEST_MARKET_PRICE_NORMAL)
             .cardCondition(CardCondition.NEAR_MINT)
             .cardVariation(CardVariation.NORMAL)
             .build();
 
-        when(userRepo.findByEmail("test@example.com")).thenReturn(Optional.of(user));
-        when(cardRepo.getReferenceById(1)).thenReturn(card);
+        when(userRepo.findByEmail(TEST_EMAIL)).thenReturn(Optional.of(user));
+        when(cardRepo.getReferenceById(TEST_CARD_ID)).thenReturn(card);
 
-        User result = userService.addCard(request, "test@example.com");
+        User result = userService.addCard(request, TEST_EMAIL);
 
         assertNotNull(result);
-        assertEquals(1, result.getCardList().size());
-        assertEquals(new BigDecimal("110.50"), result.getCollectionValue());
-        assertEquals(1, result.getCardList().get(0).getQuantity());
+        assertEquals(QUANTITY_ONE, result.getCardList().size());
+        assertEquals(new BigDecimal(COLLECTION_VALUE_AFTER_ADD), result.getCollectionValue());
+        assertEquals(QUANTITY_ONE, result.getCardList().get(FIRST_CARD_INDEX).getQuantity());
         
-        verify(userRepo).findByEmail("test@example.com");
-        verify(cardRepo).getReferenceById(1);
+        verify(userRepo).findByEmail(TEST_EMAIL);
+        verify(cardRepo).getReferenceById(TEST_CARD_ID);
     }
 
     @Test
     void testAddCard_ExistingCard() throws CardNotFoundException {
         UserCard existingUserCard = UserCard.builder()
             .card(card)
-            .quantity(1)
+            .quantity(QUANTITY_ONE)
             .cardCondition(CardCondition.NEAR_MINT)
             .cardVariation(CardVariation.NORMAL)
             .build();
         user.getCardList().add(existingUserCard);
 
         CardCollectionRequest request = CardCollectionRequest.builder()
-            .cardId(1)
-            .marketValue(10.5f)
+            .cardId(TEST_CARD_ID)
+            .marketValue(TEST_MARKET_PRICE_NORMAL)
             .cardCondition(CardCondition.NEAR_MINT)
             .cardVariation(CardVariation.NORMAL)
             .build();
 
-        when(userRepo.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+        when(userRepo.findByEmail(TEST_EMAIL)).thenReturn(Optional.of(user));
 
-        User result = userService.addCard(request, "test@example.com");
+        User result = userService.addCard(request, TEST_EMAIL);
 
         assertNotNull(result);
-        assertEquals(1, result.getCardList().size());
-        assertEquals(2, result.getCardList().get(0).getQuantity());
-        assertEquals(new BigDecimal("110.50"), result.getCollectionValue());
+        assertEquals(QUANTITY_ONE, result.getCardList().size());
+        assertEquals(QUANTITY_TWO, result.getCardList().get(FIRST_CARD_INDEX).getQuantity());
+        assertEquals(new BigDecimal(COLLECTION_VALUE_AFTER_ADD), result.getCollectionValue());
         
-        verify(userRepo).findByEmail("test@example.com");
+        verify(userRepo).findByEmail(TEST_EMAIL);
         verify(cardRepo, never()).getReferenceById(anyInt());
     }
 
     @Test
     void testAddCard_CardNotFound() {
         CardCollectionRequest request = CardCollectionRequest.builder()
-            .cardId(999)
-            .marketValue(10.5f)
+            .cardId(NON_EXISTENT_CARD_ID)
+            .marketValue(TEST_MARKET_PRICE_NORMAL)
             .cardCondition(CardCondition.NEAR_MINT)
             .cardVariation(CardVariation.NORMAL)
             .build();
 
-        when(userRepo.findByEmail("test@example.com")).thenReturn(Optional.of(user));
-        when(cardRepo.getReferenceById(999)).thenThrow(new EntityNotFoundException());
+        when(userRepo.findByEmail(TEST_EMAIL)).thenReturn(Optional.of(user));
+        when(cardRepo.getReferenceById(NON_EXISTENT_CARD_ID)).thenThrow(new EntityNotFoundException());
 
-        assertThrows(CardNotFoundException.class, () -> userService.addCard(request, "test@example.com"));
+        assertThrows(CardNotFoundException.class, () -> userService.addCard(request, TEST_EMAIL));
         
-        verify(userRepo).findByEmail("test@example.com");
-        verify(cardRepo).getReferenceById(999);
+        verify(userRepo).findByEmail(TEST_EMAIL);
+        verify(cardRepo).getReferenceById(NON_EXISTENT_CARD_ID);
     }
 
     @Test
     void testAddCard_OverloadedMethod() {
         CardCollectionRequest request = CardCollectionRequest.builder()
-            .cardId(1)
-            .marketValue(10.5f)
+            .cardId(TEST_CARD_ID)
+            .marketValue(TEST_MARKET_PRICE_NORMAL)
             .cardCondition(CardCondition.NEAR_MINT)
             .cardVariation(CardVariation.NORMAL)
             .build();
 
-        when(userRepo.findByEmail("test@example.com")).thenReturn(Optional.of(user));
-        when(cardRepo.getReferenceById(1)).thenReturn(card);
+        when(userRepo.findByEmail(TEST_EMAIL)).thenReturn(Optional.of(user));
+        when(cardRepo.getReferenceById(TEST_CARD_ID)).thenReturn(card);
 
-        User result = userService.addCard(1, 10.5f, CardCondition.NEAR_MINT, CardVariation.NORMAL, "test@example.com");
+        User result = userService.addCard(TEST_CARD_ID, TEST_MARKET_PRICE_NORMAL, CardCondition.NEAR_MINT, CardVariation.NORMAL, TEST_EMAIL);
 
         assertNotNull(result);
-        assertEquals(1, result.getCardList().size());
+        assertEquals(QUANTITY_ONE, result.getCardList().size());
         
-        verify(userRepo).findByEmail("test@example.com");
-        verify(cardRepo).getReferenceById(1);
+        verify(userRepo).findByEmail(TEST_EMAIL);
+        verify(cardRepo).getReferenceById(TEST_CARD_ID);
     }
 
     @Test
     void testRemoveCard_QuantityGreaterThanOne() {
         UserCard userCard = UserCard.builder()
             .card(card)
-            .quantity(2)
+            .quantity(QUANTITY_TWO)
             .cardCondition(CardCondition.NEAR_MINT)
             .cardVariation(CardVariation.NORMAL)
             .build();
         user.getCardList().add(userCard);
 
         CardCollectionRequest request = CardCollectionRequest.builder()
-            .cardId(1)
-            .marketValue(10.5f)
+            .cardId(TEST_CARD_ID)
+            .marketValue(TEST_MARKET_PRICE_NORMAL)
             .cardCondition(CardCondition.NEAR_MINT)
             .cardVariation(CardVariation.NORMAL)
             .build();
 
-        when(userRepo.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+        when(userRepo.findByEmail(TEST_EMAIL)).thenReturn(Optional.of(user));
 
-        User result = userService.removeCard(request, "test@example.com");
+        User result = userService.removeCard(request, TEST_EMAIL);
 
         assertNotNull(result);
-        assertEquals(1, result.getCardList().size());
-        assertEquals(1, result.getCardList().get(0).getQuantity());
-        assertEquals(new BigDecimal("89.50"), result.getCollectionValue());
-        
-        verify(userRepo).findByEmail("test@example.com");
+        assertEquals(QUANTITY_ONE, result.getCardList().size());
+        assertEquals(QUANTITY_ONE, result.getCardList().get(FIRST_CARD_INDEX).getQuantity());
+        assertEquals(new BigDecimal(COLLECTION_VALUE_AFTER_REMOVE), result.getCollectionValue());
+
+        verify(userRepo).findByEmail(TEST_EMAIL);
     }
 
     @Test
     void testRemoveCard_QuantityEqualsOne() {
         UserCard userCard = UserCard.builder()
             .card(card)
-            .quantity(1)
+            .quantity(QUANTITY_ONE)
             .cardCondition(CardCondition.NEAR_MINT)
             .cardVariation(CardVariation.NORMAL)
             .build();
         user.getCardList().add(userCard);
 
         CardCollectionRequest request = CardCollectionRequest.builder()
-            .cardId(1)
-            .marketValue(10.5f)
+            .cardId(TEST_CARD_ID)
+            .marketValue(TEST_MARKET_PRICE_NORMAL)
             .cardCondition(CardCondition.NEAR_MINT)
             .cardVariation(CardVariation.NORMAL)
             .build();
 
-        when(userRepo.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+        when(userRepo.findByEmail(TEST_EMAIL)).thenReturn(Optional.of(user));
 
-        User result = userService.removeCard(request, "test@example.com");
+        User result = userService.removeCard(request, TEST_EMAIL);
 
         assertNotNull(result);
         assertTrue(result.getCardList().isEmpty());
-        assertEquals(new BigDecimal("89.50"), result.getCollectionValue());
-        
-        verify(userRepo).findByEmail("test@example.com");
+        assertEquals(new BigDecimal(COLLECTION_VALUE_AFTER_REMOVE), result.getCollectionValue());
+
+        verify(userRepo).findByEmail(TEST_EMAIL);
     }
 
     @Test
     void testRemoveCard_DifferentConditionOrVariation() {
         UserCard userCard = UserCard.builder()
             .card(card)
-            .quantity(1)
+            .quantity(QUANTITY_ONE)
             .cardCondition(CardCondition.LIGHTLY_PLAYED)
             .cardVariation(CardVariation.HOLOGRAPHIC)
             .build();
         user.getCardList().add(userCard);
 
         CardCollectionRequest request = CardCollectionRequest.builder()
-            .cardId(1)
-            .marketValue(10.5f)
+            .cardId(TEST_CARD_ID)
+            .marketValue(TEST_MARKET_PRICE_NORMAL)
             .cardCondition(CardCondition.NEAR_MINT)
             .cardVariation(CardVariation.NORMAL)
             .build();
 
-        when(userRepo.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+        when(userRepo.findByEmail(TEST_EMAIL)).thenReturn(Optional.of(user));
 
-        User result = userService.removeCard(request, "test@example.com");
+        User result = userService.removeCard(request, TEST_EMAIL);
 
         assertNotNull(result);
-        assertEquals(1, result.getCardList().size());
-        assertEquals(new BigDecimal("100.00"), result.getCollectionValue());
-        
-        verify(userRepo).findByEmail("test@example.com");
+        assertEquals(QUANTITY_ONE, result.getCardList().size());
+        assertEquals(new BigDecimal(INITIAL_COLLECTION_VALUE), result.getCollectionValue());
+
+        verify(userRepo).findByEmail(TEST_EMAIL);
     }
 
     @Test
     void testDeleteUser() {
-        doNothing().when(userRepo).deleteByEmail("test@example.com");
+        doNothing().when(userRepo).deleteByEmail(TEST_EMAIL);
 
-        userService.deleteUser("test@example.com");
+        userService.deleteUser(TEST_EMAIL);
 
-        verify(userRepo).deleteByEmail("test@example.com");
+        verify(userRepo).deleteByEmail(TEST_EMAIL);
     }
 
     @Test
     void testAddCard_MultipleCardsWithDifferentConditions() throws CardNotFoundException {
         CardCollectionRequest request1 = CardCollectionRequest.builder()
-            .cardId(1)
-            .marketValue(10.5f)
+            .cardId(TEST_CARD_ID)
+            .marketValue(TEST_MARKET_PRICE_NORMAL)
             .cardCondition(CardCondition.NEAR_MINT)
             .cardVariation(CardVariation.NORMAL)
             .build();
 
         CardCollectionRequest request2 = CardCollectionRequest.builder()
-            .cardId(1)
-            .marketValue(25.0f)
+            .cardId(TEST_CARD_ID)
+            .marketValue(TEST_MARKET_PRICE_HOLO)
             .cardCondition(CardCondition.NEAR_MINT)
             .cardVariation(CardVariation.HOLOGRAPHIC)
             .build();
 
-        when(userRepo.findByEmail("test@example.com")).thenReturn(Optional.of(user));
-        when(cardRepo.getReferenceById(1)).thenReturn(card);
 
-        userService.addCard(request1, "test@example.com");
-        userService.addCard(request2, "test@example.com");
+        BigDecimal COLLECTION_VALUE_MULTIPLE_CARDS = new BigDecimal(INITIAL_COLLECTION_VALUE).add(new BigDecimal(Float.toString(TEST_MARKET_PRICE_HOLO))).add(new BigDecimal(Float.toString(TEST_MARKET_PRICE_NORMAL)));
 
-        assertEquals(2, user.getCardList().size());
-        assertEquals(new BigDecimal("136.00"), user.getCollectionValue());
-        
-        verify(userRepo, times(2)).findByEmail("test@example.com");
-        verify(cardRepo, times(2)).getReferenceById(1);
+        when(userRepo.findByEmail(TEST_EMAIL)).thenReturn(Optional.of(user));
+        when(cardRepo.getReferenceById(TEST_CARD_ID)).thenReturn(card);
+
+        userService.addCard(request1, TEST_EMAIL);
+        userService.addCard(request2, TEST_EMAIL);
+
+        assertEquals(QUANTITY_TWO, user.getCardList().size());
+        assertEquals(COLLECTION_VALUE_MULTIPLE_CARDS, user.getCollectionValue());
+
+        verify(userRepo, times(QUANTITY_TWO)).findByEmail(TEST_EMAIL);
+        verify(cardRepo, times(QUANTITY_TWO)).getReferenceById(TEST_CARD_ID);
     }
 }
