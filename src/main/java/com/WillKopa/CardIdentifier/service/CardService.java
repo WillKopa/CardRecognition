@@ -69,16 +69,10 @@ public class CardService {
             );
         }
 
-        List<CardSearchResult> resultList = new ArrayList<>();
 
         for (Card card : dbResult) {
-            CardSearchResult cardSearchResult = cardConverter.toCardSearchResult(card);
-            resultList.add(cardSearchResult);
-        }
+            tcgDexService.setCardPriceAndImageURL(card);
 
-        log.info("Retrieved {} cards from DB", resultList.size());
-
-        for (CardSearchResult card : resultList) {
             if (card.getCardSet() == null) {
                 log.info("Updating card: {}, ID: {}", card.getName(), card.getId());
                 tcgDexService.updateCard(card);
@@ -87,8 +81,16 @@ public class CardService {
                     "\nNumber: " + card.getCardNumber() +
                     "\nCard Set: " + card.getCardSet() +
                     "\nExternal Id: " + card.getExternalDbId());
-            tcgDexService.getCardPriceAndImageURL(card);
         }
+
+        List<CardSearchResult> resultList = new ArrayList<>();
+
+        for (Card card : dbResult) {
+            CardSearchResult cardSearchResult = cardConverter.toCardSearchResult(card);
+            resultList.add(cardSearchResult);
+        }
+
+        log.info("Retrieved {} cards from DB", resultList.size());
 
         return resultList;
     }

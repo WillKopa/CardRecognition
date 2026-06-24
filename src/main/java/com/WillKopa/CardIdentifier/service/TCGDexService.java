@@ -50,7 +50,7 @@ public class TCGDexService {
      *
      * @param card the card search result to update with pricing and image information
      */
-    public void getCardPriceAndImageURL(CardSearchResult card) {
+    public void setCardPriceAndImageURL(com.WillKopa.CardIdentifier.model.Card card) {
         Optional<Card> responseOptional = Optional.ofNullable(getCard(card.getExternalDbId()));
         Optional<PricingTcgPlayer> tcgPlayerOptional = responseOptional
                 .map(net.tcgdex.sdk.models.Card::getPricing)
@@ -91,21 +91,12 @@ public class TCGDexService {
      *
      * @param result the card search result containing the external database ID
      */
-    public void updateCard(CardSearchResult result) {
-        getCardPriceAndImageURL(result);
+    public void updateCard(com.WillKopa.CardIdentifier.model.Card result) {
         Optional.ofNullable(tcGdex.fetchCard(result.getExternalDbId())).ifPresent(card -> {
-                    com.WillKopa.CardIdentifier.model.Card updatedCard = new com.WillKopa.CardIdentifier.model.Card();
-                    updatedCard.setId(result.getId());
-                    updatedCard.setCardSet(card.getSet().getName());
-                    updatedCard.setCardSetId(card.getSet().getId());
-                    updatedCard.setSetOfficialPrintedTotal(card.getSet().getCardCount().getOfficial());
-                    updatedCard.setImageUrlLow(card.getImageUrl(Quality.LOW, Extension.WEBP));
-                    updatedCard.setImageUrlHigh(card.getImageUrl(Quality.HIGH, Extension.WEBP));
-                    updatedCard.setMarketPriceNormal(result.getMarketPriceNormal());
-                    updatedCard.setMarketPriceHolo(result.getMarketPriceHolo());
-                    updatedCard.setMarketPriceReverseHolo(result.getMarketPriceReverseHolo());
-                    cardRepo.updateCard(updatedCard);
-                    result.setCardSet(updatedCard.getCardSet());
+                    result.setCardSet(card.getSet().getName());
+                    result.setCardSetId(card.getSet().getId());
+                    result.setSetOfficialPrintedTotal(card.getSet().getCardCount().getOfficial());
+                    cardRepo.updateCard(result);
                 }
         );
     }
