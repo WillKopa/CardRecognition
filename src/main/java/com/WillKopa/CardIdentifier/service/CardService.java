@@ -69,25 +69,28 @@ public class CardService {
             );
         }
 
+        List<CardSearchResult> resultList = new ArrayList<>();
 
         for (Card card : dbResult) {
+            boolean isCardUpdated = false;
             tcgDexService.setCardPriceAndImageURL(card);
 
             if (card.getCardSet() == null) {
                 log.info("Updating card: {}, ID: {}", card.getName(), card.getId());
                 tcgDexService.updateCard(card);
+                isCardUpdated = true;
             }
+
             System.out.println("Name: " + card.getName() +
                     "\nNumber: " + card.getCardNumber() +
                     "\nCard Set: " + card.getCardSet() +
                     "\nExternal Id: " + card.getExternalDbId());
-        }
 
-        List<CardSearchResult> resultList = new ArrayList<>();
-
-        for (Card card : dbResult) {
-            CardSearchResult cardSearchResult = cardConverter.toCardSearchResult(card);
-            resultList.add(cardSearchResult);
+            // If the card wasn't updated then it matches. If the card was updated, then will only add if the set printed total matches
+            if (!isCardUpdated || card.getSetOfficialPrintedTotal() == Integer.parseInt(result.getSetPrintedTotal())) {
+                CardSearchResult cardSearchResult = cardConverter.toCardSearchResult(card);
+                resultList.add(cardSearchResult);
+            }
         }
 
         log.info("Retrieved {} cards from DB", resultList.size());
